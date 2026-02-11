@@ -1,0 +1,3493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users Homepage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+    <style>
+      :root {
+        --bs-primary: #007bff;
+        --bs-secondary: #6c757d;
+        --bs-success: #28a745;
+        --bs-danger: #dc3545;
+        --bs-light: #f8f9fa;
+        --bs-dark: #343a40;
+        --bs-white: #fff;
+        --bs-gray-100: #f8f9fa;
+        --bs-gray-200: #e9ecef;
+        --bs-gray-300: #dee2e6;
+        --bs-gray-400: #ced4da;
+        --bs-gray-500: #adb5bd;
+        --bs-gray-600: #6c757d;
+        --bs-gray-700: #495057;
+        --bs-gray-800: #343a40;
+        --bs-gray-900: #212529;
+        --bs-body-bg: #f0f2f5;
+        --bs-body-color: var(--bs-gray-900);
+
+        --font-inter: "Inter", sans-serif;
+
+        --spacing-xs: 0.25rem; /* 4px */
+        --spacing-sm: 0.5rem; /* 8px */
+        --spacing-md: 1rem; /* 16px */
+        --spacing-lg: 1.5rem; /* 24px */
+        --spacing-xl: 2rem; /* 32px */
+
+        --border-radius-sm: 0.3rem;
+        --border-radius-md: 0.5rem;
+        --border-radius-lg: 0.75rem;
+
+        --box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        --box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        --box-shadow-lg: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+      }
+
+      body {
+        font-family: var(--font-inter);
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        line-height: 1.6; /* Improved readability */
+      }
+
+      .navbar {
+        background-color: var(--bs-white);
+        box-shadow: var(--box-shadow-sm);
+        border-bottom: 1px solid var(--bs-gray-300);
+        position: sticky; /* Make navbar sticky */
+        top: 0; /* Stick to the top */
+        z-index: 1020; /* Ensure it's above other content */
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        color: var(--bs-primary);
+      }
+
+      .nav-link {
+        color: var(--bs-gray-700);
+        font-weight: 500;
+        transition: color 0.2s ease-in-out;
+        padding: var(--spacing-md) var(--spacing-lg); /* Adjusted padding */
+      }
+
+      .nav-link:hover {
+        color: #0056b3; /* Darker blue on hover */
+      }
+
+      .nav-link.active {
+        color: var(--bs-primary); /* Primary color for active link */
+        font-weight: 600;
+      }
+
+      .main-content {
+        padding: var(--spacing-lg) var(--spacing-md); /* More padding on mobile */
+        padding-top: calc(var(--spacing-lg) + 56px); /* Adjust for sticky navbar height */
+      }
+
+       /* Touch feedback for buttons */
+       .btn:active {
+           transform: scale(0.95);
+       }
+
+
+      @media (min-width: 576px) { /* Small devices (landscape phones, 576px and up) */
+          .main-content {
+              padding-top: calc(var(--spacing-lg) + 56px); /* Adjust for sticky navbar height */
+          }
+      }
+
+
+      @media (min-width: 768px) { /* Medium devices (tables, 768px and up) */
+        .main-content {
+          padding: var(--spacing-xl) var(--spacing-lg); /* Increased padding on larger screens */
+          padding-top: calc(var(--spacing-xl) + 56px); /* Adjust for sticky navbar height */
+        }
+         body {
+             font-size: 1rem; /* Default font size */
+         }
+         h2 {
+             font-size: 1.5rem; /* Default heading size */
+         }
+         .navbar .nav-link {
+             padding: 0.5rem 1rem; /* Default navbar link padding */
+         }
+      }
+
+      @media (min-width: 768px) and (max-width: 991.98px) { /* Tablet breakpoint */
+           .main-content .card {
+               width: 90%; /* Adjust card width */
+               margin-left: auto;
+               margin-right: auto;
+           }
+      }
+
+
+      @media (min-width: 992px) { /* Large devices (desktops, 992px and up) */
+          .main-content {
+              max-width: 800px; /* Center the content */
+              margin: 0 auto;
+              padding-top: calc(var(--spacing-xl) + 56px); /* Adjust for sticky navbar height */
+          }
+      }
+
+       /* Mobile Specific Styles (phones, up to 767.98px) */
+       @media (max-width: 767.98px) {
+           body {
+               font-size: 0.875rem; /* Smaller font size on phones */
+           }
+           h2 {
+               font-size: 1.25rem; /* Smaller heading size on phones */
+           }
+           .navbar .nav-link {
+               padding-top: 0.75rem; /* Increase tap target */
+               padding-bottom: 0.75rem; /* Increase tap target */
+               height: 48px; /* Ensure minimum height */
+               display: flex; /* Use flex for centering text if needed */
+               align-items: center;
+           }
+
+           .main-content {
+               padding: var(--spacing-md); /* Reduced padding on phones */
+               padding-top: calc(var(--spacing-md) + 56px); /* Adjust for sticky navbar height */
+           }
+
+           /* Post Creation Form */
+           #create-post .card-body .d-flex.align-items-center.gap-3.mb-3 {
+               flex-direction: column; /* Stack profile pic and textarea */
+               align-items: flex-start;
+               gap: var(--spacing-md);
+           }
+
+           #create-post textarea {
+               width: 100%; /* Make textarea full width */
+               rows: 2; /* Reduced rows */
+           }
+
+           #create-post .post-actions {
+               flex-direction: column; /* Stack action buttons */
+               align-items: flex-start;
+               gap: var(--spacing-sm);
+           }
+
+           #create-post .post-actions .btn-link {
+               padding: var(--spacing-sm) 0; /* Adjust padding for stacked buttons */
+           }
+
+           #create-post .post-actions .btn-link i {
+               margin-right: var(--spacing-sm); /* Add margin to icon */
+            }
+
+           #create-post .media-preview-container {
+               justify-content: center; /* Center previews */
+           }
+
+           #create-post .media-preview {
+               flex: 0 0 calc(50% - var(--spacing-md) / 2); /* 2 per row */
+               max-width: calc(50% - var(--spacing-md) / 2);
+           }
+
+           #create-post .btn-primary#postButton {
+               padding: 0.75rem 1.5rem; /* Adjust padding */
+               height: 48px; /* Increase tap target */
+               font-size: 1rem;
+           }
+
+            #create-post .post-actions .btn-link {
+                font-size: 0.875rem; /* Smaller font size */
+            }
+
+            /* Hide text for media/poll buttons on phones */
+            #create-post .post-actions .btn-link i {
+                 margin-right: 0; /* Remove margin */
+            }
+            #create-post .post-actions .btn-link span {
+                 display: none; /* Hide text */
+            }
+
+
+           /* Posts Feed */
+           #posts-feed .card {
+               /* Already single column by default, but ensure no side padding issues */
+               margin-left: 0;
+               margin-right: 0;
+           }
+
+           .post-actions {
+               flex-direction: column; /* Stack post actions */
+               align-items: flex-start;
+               gap: var(--spacing-sm);
+           }
+
+           .post-actions .action-btn {
+               padding: var(--spacing-sm) 0; /* Adjust padding */
+               font-size: 0.875rem; /* Smaller font size */
+           }
+
+           .post-actions .action-btn i {
+               font-size: 0.875rem; /* Smaller icon size */
+           }
+
+
+           /* Comments */
+           .comment {
+               padding: var(--spacing-sm); /* Reduced comment padding */
+           }
+
+           .comment .rounded-circle {
+               display: none; /* Hide avatars in comments on phones */
+           }
+
+           .comment .d-flex {
+               align-items: flex-start; /* Align text to top */
+           }
+
+           /* Carousel Images */
+           .carousel-item img,
+           .carousel-item video {
+               max-height: 300px; /* Reduced max height */
+           }
+
+           /* Activity Programme */
+           .activity-card .card-header .d-flex {
+               flex-direction: column; /* Stack header content */
+               align-items: flex-start;
+               gap: var(--spacing-sm);
+           }
+
+           .activity-card .card-header .d-flex > div:last-child {
+               width: 100%; /* Make buttons container full width */
+               display: flex;
+               justify-content: flex-end; /* Align buttons to the right */
+               gap: var(--spacing-md);
+           }
+
+           .activity-card .card-header h5 {
+               font-size: 1.1rem; /* Slightly smaller title */
+           }
+
+           .activity-card .card-header i {
+               font-size: 1.25rem; /* Larger icons */
+           }
+
+            .activity-card .interest-btn {
+                padding: 0.75rem 1.5rem; /* Adjust padding */
+                height: 48px; /* Increase tap target */
+                font-size: 1rem;
+            }
+
+            .activity-card .card-body {
+                padding: var(--spacing-md); /* Reduced padding */
+            }
+
+           /* Search/Filter Prominence */
+           #activitySearch, #activityFilter {
+               font-size: 1rem; /* Default font size */
+               padding: 0.75rem 1rem; /* Larger padding */
+           }
+
+           .notification-unread {
+               border-left-width: 6px; /* Bolder left border */
+               padding-left: var(--spacing-md); /* Adjust padding */
+           }
+
+           .notification-text {
+               font-size: 0.875rem; /* Reduced font size */
+               white-space: nowrap; /* Prevent wrapping */
+               overflow: hidden; /* Hide overflow */
+               text-overflow: ellipsis; /* Add ellipsis */
+               max-width: 100%; /* Ensure it respects container width */
+               display: block; /* Make it a block element for ellipsis */
+           }
+
+           /* Modals */
+           .modal.fade .modal-dialog {
+               width: 100vw; /* Full width */
+               max-width: none; /* Remove max-width */
+               margin: 0; /* Remove margin */
+           }
+
+           .modal-content {
+               min-height: 100vh; /* Full height */
+               border-radius: 0; /* Remove border radius */
+           }
+
+           .modal-header .btn-close {
+               font-size: 1.5rem; /* Larger close button */
+           }
+
+           .modal-body {
+               display: flex;
+               flex-direction: column;
+               justify-content: center; /* Center content vertically */
+               align-items: flex-start; /* Align items to the start */
+           }
+
+           .contact-item {
+               flex-direction: column; /* Stack icon and text */
+               align-items: flex-start;
+               font-size: 1rem; /* Default font size */
+               padding: var(--spacing-sm) 0; /* Add padding for tap target */
+               min-height: 48px; /* Minimum height for tap target */
+           }
+
+           .contact-item i {
+               font-size: 1.25rem; /* Larger icons */
+               margin-right: 0; /* Remove margin */
+               margin-bottom: var(--spacing-sm); /* Add bottom margin */
+           }
+            .contact-item a {
+                margin-left: 0; /* Remove left margin */
+            }
+             .contact-item .btn-message {
+                 margin-top: var(--spacing-sm); /* Add margin above button */
+             }
+
+
+       }
+
+
+      .card {
+        border: none;
+        box-shadow: var(--box-shadow-md);
+        border-radius: var(--border-radius-lg);
+        margin-bottom: var(--spacing-xl); /* Increased bottom margin */
+        background-color: var(--bs-white);
+      }
+
+      .card-header {
+        background-color: var(--bs-white);
+        padding: 1.25rem 1.5rem; /* Increased padding */
+        border-bottom: 1px solid var(--bs-gray-300); /* Lighter border */
+      }
+
+      .card-body {
+        padding: var(--spacing-lg); /* Increased padding */
+      }
+
+      .card-footer {
+        background-color: var(--bs-white);
+        padding: 1.25rem 1.5rem; /* Increased padding */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-md); /* Gap between footer items */
+      }
+
+      .btn {
+          font-weight: 600;
+          transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-in-out; /* Added transform */
+      }
+
+      .btn-primary {
+        font-size: 1rem;
+        padding: 0.75rem 2rem;
+        border-radius: var(--border-radius-md);
+      }
+
+      .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+      }
+
+      .btn-secondary {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: var(--border-radius-sm);
+      }
+
+      .btn-secondary:hover {
+        background-color: #545b62;
+        border-color: #4e555b;
+      }
+
+      .btn-sm {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.875rem;
+        border-radius: var(--border-radius-sm);
+      }
+
+      .rounded-circle {
+        border-radius: 50% !important;
+        object-fit: cover;
+      }
+
+      /* Profile picture sizes */
+      .post-profile-pic,
+      .notification-profile-pic {
+          width: 40px;
+          height: 40px;
+          margin-right: var(--spacing-md);
+          cursor: pointer;
+          transition: opacity 0.2s ease-in-out;
+      }
+
+       .comment .rounded-circle {
+           width: 32px; /* Smaller size for comments */
+           height: 32px;
+           margin-right: var(--spacing-sm);
+       }
+
+       .modal .rounded-circle {
+           width: 40px;
+           height: 40px;
+       }
+
+
+      .post-header,
+      .notification-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .post-user-info,
+      .notification-user-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .post-user-name,
+      .notification-user-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--bs-gray-900);
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+      }
+
+      .post-user-name:hover,
+      .notification-user-name:hover {
+        color: var(--bs-primary);
+        text-decoration: underline;
+      }
+
+      .post-profile-pic:hover,
+      .notification-profile-pic:hover {
+        opacity: 0.8;
+      }
+
+      .post-date,
+      .notification-timestamp {
+        font-size: 0.875rem;
+        color: var(--bs-gray-600);
+      }
+
+      .post-content {
+        font-size: 1rem;
+        color: var(--bs-dark);
+        margin-bottom: var(--spacing-lg);
+        line-height: 1.6;
+      }
+
+      .notification-text {
+        font-size: 0.9rem;
+        color: var(--bs-dark);
+      }
+
+      .notification-unread {
+        background-color: var(--bs-gray-200); /* Light gray background for unread */
+        border-left: 4px solid var(--bs-primary); /* Primary color border on the left */
+        padding-left: 1.25rem; /* Adjust padding due to border */
+      }
+
+       .notification-unread .card-body {
+           padding-left: 0.75rem; /* Adjust inner padding */
+       }
+
+      .post-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .action-btn {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        color: var(--bs-gray-600);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: color 0.2s ease-in-out;
+      }
+
+      .action-btn:hover {
+        color: var(--bs-primary);
+      }
+
+      .action-btn.liked {
+        color: var(--bs-danger); /* Red color for liked */
+      }
+
+      .edit-btn,
+      .delete-btn,
+      .remove-media-btn,
+      .edit-comment-btn,
+      .delete-comment-btn {
+        color: var(--bs-gray-600);
+        font-size: 0.9rem;
+        transition: color 0.2s ease-in-out;
+      }
+
+      .edit-btn:hover,
+      .edit-comment-btn:hover {
+        color: var(--bs-primary);
+      }
+
+      .delete-btn:hover,
+      .remove-media-btn:hover,
+      .delete-comment-btn:hover {
+        color: var(--bs-danger);
+      }
+
+      .form-control {
+        font-size: 0.9rem;
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem 1rem;
+      }
+
+      .form-control:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+      }
+
+      .comment-actions .btn-link {
+          font-size: 0.875rem;
+          display: flex;
+          align-items: center;
+      }
+
+      .comment-actions .btn-link:hover {
+          text-decoration: underline !important;
+      }
+
+      .comment-text {
+          line-height: 1.5;
+          word-break: break-word;
+      }
+
+      .edit-comment-form {
+          margin-top: var(--spacing-md);
+      }
+
+      .edit-form {
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-md);
+        background-color: var(--bs-gray-100);
+        border-radius: var(--border-radius-md);
+      }
+
+      .media-preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+        margin-top: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .media-preview {
+        position: relative;
+        max-width: 180px;
+        flex: 1 1 auto;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+      }
+
+      .media-preview img,
+      .media-preview video {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: var(--border-radius-md);
+      }
+
+      .remove-media-preview {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        background: rgba(0, 0, 0, 0.6);
+        color: var(--bs-white);
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease-in-out;
+      }
+
+      .remove-media-preview:hover {
+        background: rgba(220, 53, 69, 0.9);
+      }
+
+      .carousel-item img,
+      .carousel-item video {
+        max-height: 400px;
+        width: 100%;
+        object-fit: contain;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--box-shadow-sm); /* Add subtle shadow */
+      }
+
+      .carousel-control-prev,
+      .carousel-control-next {
+        width: 10%; /* Increased clickable area */
+        opacity: 0.7;
+        transition: opacity 0.2s ease-in-out;
+      }
+
+      .carousel-control-prev:hover,
+      .carousel-control-next:hover {
+          opacity: 1;
+      }
+
+       .carousel-control-prev-icon,
+       .carousel-control-next-icon {
+           filter: invert(1);
+       }
+
+      .contact-item {
+        font-size: 1rem;
+        margin-bottom: var(--spacing-md);
+        display: flex;
+        align-items: center;
+      }
+
+      .contact-item i {
+        margin-right: var(--spacing-md);
+        color: var(--bs-primary);
+        font-size: 1.1rem;
+      }
+
+      .btn-message {
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: var(--spacing-sm) var(--spacing-md);
+      }
+
+      .modal-content {
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--box-shadow-lg);
+      }
+
+      .modal-header {
+        border-bottom: 1px solid var(--bs-gray-300);
+        padding: var(--spacing-md) var(--spacing-lg);
+      }
+
+      .modal-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+      }
+
+      .container-fluid {
+        padding-left: var(--spacing-md);
+        padding-right: var(--spacing-md);
+      }
+
+      .error-message {
+        display: none;
+        color: var(--bs-danger);
+        font-size: 0.875rem;
+        margin-top: var(--spacing-md);
+      }
+
+      .drag-drop-area {
+        border: 2px dashed var(--bs-gray-400);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        text-align: center;
+        background-color: var(--bs-gray-100);
+        transition: all 0.3s ease;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .drag-drop-area.drag-over {
+        border-color: var(--bs-primary);
+        background-color: var(--bs-gray-200);
+      }
+
+      .drag-drop-area.drag-over::after {
+        content: "Drop files here";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.2rem;
+        color: var(--bs-primary);
+        font-weight: 600;
+      }
+
+      .drag-drop-text {
+        margin: var(--spacing-md) 0;
+        color: var(--bs-gray-600);
+        font-size: 0.9rem;
+      }
+
+      .toast-container {
+        position: fixed;
+        top: var(--spacing-lg);
+        right: var(--spacing-lg);
+        z-index: 1055;
+      }
+
+       .toast-header.bg-success {
+           background-color: var(--bs-success) !important;
+           color: var(--bs-white);
+       }
+        .toast-header.bg-danger {
+           background-color: var(--bs-danger) !important;
+           color: var(--bs-white);
+       }
+
+       /* Activity Specific Styles */
+       .activity-card .card-header h5 {
+           font-size: 1.2rem; /* Larger font size for activity titles */
+           font-weight: 700; /* Bolder weight */
+       }
+
+       .activity-card .card-header i {
+           font-size: 1.5rem; /* Larger icons */
+       }
+
+       .activity-card .interest-btn {
+           font-weight: 600;
+       }
+
+       .activity-card .interest-btn[aria-pressed="true"] {
+           background-color: var(--bs-success);
+           border-color: var(--bs-success);
+           color: var(--bs-white);
+       }
+
+       .activity-card .interest-btn[aria-pressed="true"]:hover {
+           background-color: #218838; /* Darker green on hover */
+           border-color: #1e7e34;
+       }
+
+       .activity-card .interest-btn:not([aria-pressed="true"]) {
+           background-color: transparent;
+           border-color: var(--bs-success);
+           color: var(--bs-success);
+       }
+
+        .activity-card .interest-btn:not([aria-pressed="true"]):hover {
+           background-color: var(--bs-success);
+           border-color: var(--bs-success);
+           color: var(--bs-white);
+       }
+
+       .activity-card .interest-btn:disabled {
+           opacity: 0.65;
+           cursor: not-allowed;
+       }
+
+
+      @media (min-width: 768px) {
+        .container-fluid {
+          padding-left: var(--spacing-lg);
+          padding-right: var(--spacing-lg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toast-container">
+      <div class="toast" id="mediaToast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="toast-header">
+          <strong class="me-auto">Feedback</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+      </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="#">
+          <i class="fas fa-handshake me-2"></i>
+          <span class="fs-5">Integrating</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#" data-section="home">
+                <i class="fas fa-home d-lg-none me-2"></i>
+                <span>Home</span>
+              </a>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <a class="nav-link" href="Edit_activities.html">
+                <i class="fas fa-users me-2"></i>
+                Activity Edit
+              </a>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <a class="nav-link" href="friends.html">
+                <i class="fas fa-users me-2"></i>
+                Friends
+              </a>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <a class="nav-link d-flex align-items-center position-relative px-2 py-1" href="#">
+                <i class="fas fa-envelope me-2"></i>
+                Messages
+                <span class="badge bg-primary rounded-pill position-absolute top-0 end-0 translate-middle-y"
+                      id="messageBadge"
+                      style="font-size: 0.65em; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px;">
+                  3
+                </span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center position-relative px-2 py-1" href="#" data-section="notifications">
+                <i class="fas fa-bell me-2 d-lg-none"></i>
+                <i class="fas fa-bell d-none d-lg-block me-2"></i>
+                <span>Notifications</span>
+                <span class="badge bg-danger rounded-pill position-absolute top-0 end-0 translate-middle-y"
+                      id="notificationBadge"
+                      style="font-size: 0.65em; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px;">
+                  0
+                </span>
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle d-flex align-items-center py-1"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                  src="https://placehold.co/40x40/007bff/FFF  "
+                  alt="Test User"
+                  class="rounded-circle me-2 border border-light shadow-sm"
+                  style="width: 36px; height: 36px;"
+                />
+                <span class="d-none d-lg-inline fw-medium">Test User</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3 border-0">
+                <li>
+                  <div class="dropdown-header py-2">
+                    <div class="d-flex align-items-center">
+                      <img
+                        src="https://placehold.co/40x40/007bff/FFF  "
+                        alt="Test User"
+                        class="rounded-circle me-3 border border-light shadow-sm"
+                        style="width: 40px; height: 40px;"
+                      />
+                      <div>
+                        <div class="fw-semibold mb-0">Test User</div>
+                        <small class="text-muted">test@example.com</small>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li><hr class="dropdown-divider m-0" /></li>
+                <li class="d-lg-none">
+                  <a class="dropdown-item d-flex align-items-center py-3" href="friends.html">
+                    <i class="fas fa-users me-3 text-primary"></i>
+                    <span>Friends</span>
+                  </a>
+                </li>
+                <li class="d-lg-none">
+                  <a class="dropdown-item d-flex align-items-center py-3 position-relative" href="#">
+                    <i class="fas fa-envelope me-3 text-primary"></i>
+                    <span>Messages</span>
+                    <span class="badge bg-primary ms-2 position-absolute end-0 me-3" id="messageBadgeDropdown">3</span>
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider m-0 d-lg-none" /></li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center py-3" href="#">
+                    <i class="fas fa-user me-3 text-primary"></i>
+                    <span>Profile</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center py-3" href="#">
+                    <i class="fas fa-cog me-3 text-primary"></i>
+                    <span>Settings</span>
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider m-0" /></li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center py-3 text-danger" href="#">
+                    <i class="fas fa-sign-out-alt me-3"></i>
+                    <span>Logout</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <main class="col-12 col-md-8 col-lg-8 main-content"> <div id="home-section">
+            <div id="create-post" class="card mb-4 shadow-sm border-0 ux-create-post-card">
+              <div class="card-body p-4">
+
+                <!-- Main composer area with drag-and-drop support -->
+                <div class="drag-drop-area"
+                     id="dragDropArea"
+                     role="region"
+                     aria-label="Create a new post"
+                     aria-dropeffect="copy">
+
+                  <!-- User avatar + textarea row -->
+                  <div class="d-flex gap-3 align-items-start">
+                    <img src="https://placehold.co/40x40/007bff/FFF  "
+                         alt="Current user avatar"
+                         class="rounded-circle flex-shrink-0"
+                         width="40"
+                         height="40">
+
+                    <div class="flex-grow-1">
+                      <label for="postContent" class="visually-hidden">What's on your mind?</label>
+                      <textarea class="form-control border-0 shadow-none resize-none"
+                                id="postContent"
+                                rows="3"
+                                placeholder="What's on your mind?"
+                                aria-describedby="postHelp"></textarea>
+                      <small id="postHelp" class="text-body-secondary d-block mt-1 visually-hidden">Share text, photos, videos, or create a poll.</small>
+                    </div>
+                  </div>
+
+                  <!-- Drag & drop instruction -->
+                  <p class="drag-drop-text text-center text-body-secondary my-4 py-3 border rounded-3 bg-light-subtle cursor-pointer" id="clickToSelectArea">
+                    Drag and drop photos or videos here, or <span class="text-primary fw-semibold">click to select</span>
+                  </p>
+
+                  <!-- Media preview area (shown when files are added) -->
+                  <div id="mediaPreview" class="media-preview-container mt-3 d-none ux-media-preview"></div>
+
+                  <!-- Poll creation section -->
+                  <div id="pollCreation" class="mt-4 pt-4 border-top d-none">
+                    <h6 class="mb-3 fw-semibold">Create a Poll</h6>
+                    <div id="pollOptions" class="ux-poll-options">
+                      <input type="text" class="form-control mb-2" placeholder="Option 1" aria-label="Poll option 1">
+                      <input type="text" class="form-control mb-2" placeholder="Option 2" aria-label="Poll option 2">
+                    </div>
+                    <button id="addOption" class="btn btn-outline-secondary btn-sm mt-2">
+                      <i class="bi bi-plus-lg me-1"></i>Add Option
+                    </button>
+                  </div>
+
+                  <!-- Action bar (poll, post button) -->
+                  <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 pt-3 border-top gap-3">
+                    <div class="d-flex flex-wrap gap-2 post-actions">
+                      <button class="btn btn-link text-decoration-none text-muted p-2" id="pollButton" aria-label="Create a poll">
+                        <i class="bi bi-bar-chart-line fs-5"></i>
+                        <span class="ms-1 d-none d-sm-inline">Poll</span>
+                      </button>
+                      <input type="file" id="mediaInput" hidden accept="image/*,video/*" multiple aria-hidden="true">
+                    </div>
+
+                    <button class="btn btn-primary px-4" id="postButton">
+                      Post
+                    </button>
+                  </div>
+
+                  <!-- Error message container -->
+                  <div id="errorMessage" class="error-message mt-3" role="alert" aria-live="assertive"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="activity-programme" class="mb-4">
+              <h2 class="mb-3">Activity Programme</h2>
+              </div>
+
+            <div id="posts-feed" class="row"></div> </div>
+
+          <div id="notifications-section" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="mb-0">Notifications</h2>
+              <button class="btn btn-primary" id="markAllRead">
+                Mark All as Read
+              </button>
+            </div>
+            <div id="notifications-list"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="contactModal"
+      tabindex="-1"
+      aria-labelledby="contactModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-fullscreen-sm-down"> <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="contactModalLabel">Contact Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="contactDetails">
+            <!-- Contact details will be dynamically loaded here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary d-none" id="addFriendModalBtn">
+              <i class="fas fa-user-plus me-2"></i> Add Friend
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script>
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCn2rkxqHwd0L3Q669BEizX7Ezyz2-wZmI",
+        authDomain: "intergrating-3b2e9.firebaseapp.com",
+        projectId: "intergrating-3b2e9",
+        storageBucket: "intergrating-3b2e9.appspot.com",
+        messagingSenderId: "347420906839",
+        appId: "1:347420906839:web:cf1d9ea660df7b235e1a12",
+        measurementId: "G-WC3EB3EPZT"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const storage = firebase.storage();
+      // Initialize RTDB with the correct URL
+      const rtdb = firebase.database(firebaseConfig.databaseURL);
+
+      // Simulated current user - *** Replace with actual authenticated user data ***
+      const currentUser = {
+        uid: "testUser", // This should be the authenticated user's UID
+        name: "Test User",
+        photo: "https://placehold.co/40x40/007bff/FFF"
+      };
+
+      // Sample users data - *** Replace with actual user data fetching ***
+      const users = {
+        "1": {
+          name: "John Smith",
+          email: "john.smith@example.com",
+          phone: "+1 (555) 123-4567",
+          photo: "https://placehold.co/40x40/007bff/FFF"
+        },
+        "2": {
+          name: "Jane Doe",
+          email: "jane.doe@example.com",
+          phone: "+1 (555) 987-6543",
+          photo: "https://placehold.co/30x30/007bff/FFF"
+        },
+        "anotherUser": { // Added another user to simulate adding a friend
+          name: "Another User",
+          email: "another.user@example.com",
+          phone: "+1 (555) 111-2222",
+          photo: "https://placehold.co/40x40/FF5733/FFF"
+        },
+        testUser: { // Ensure this matches the currentUser.uid
+          name: "Test User",
+          email: "test.user@example.com",
+          phone: "+1 (555) 321-7890",
+          photo: "https://placehold.co/40x40/007bff/FFF"
+        }
+      };
+
+      // Sample activity data
+      const sampleActivities = [
+        {
+          name: "Customer Support Shift",
+          isSubmissionsOpen: true,
+          cost: 100,
+          location: "Office A",
+          description: "Join us for a customer support shift at Office A where you can help our customers, gain valuable experience, and work in a dynamic environment.",
+          imageUrl: "https://placehold.co/600x400/grey/white",
+          startDate: "2025-05-10",
+          endDate: "2025-05-10",
+          startTime: "09:00",
+          endTime: "17:00",
+          groupId: "sampleGroup1",
+          confirmedUsers: [],
+          reservedUsers: []
+        },
+        {
+          name: "Volunteer at Local Food Bank",
+          isSubmissionsOpen: true,
+          cost: 0,
+          location: "City Food Bank",
+          description: "Spend a day volunteering at the local food bank and help those in need. It's a great way to give back to the community.",
+          imageUrl: "https://placehold.co/600x400/grey/white",
+          startDate: "2025-05-15",
+          endDate: "2025-05-15",
+          startTime: "10:00",
+          endTime: "14:00",
+          groupId: "sampleGroup2",
+          confirmedUsers: [],
+          reservedUsers: []
+        }
+      ];
+
+      // Default posts data (simulated for demonstration)
+      const defaultPostsData = [
+          {
+            author_id: 'testUser',
+            author_ref: db.collection('users').doc('testUser'),
+            comment_count: 5,
+            content: 'Welcome to my profile! Excited to share my journey here.',
+            created_at: firebase.firestore.Timestamp.fromDate(new Date('2025-04-30T12:56:31Z')),
+            like_count: 15,
+            media_urls: [],
+            poll_options: null,
+            updated_at: firebase.firestore.Timestamp.fromDate(new Date('2025-04-30T12:56:31Z'))
+          },
+          {
+            author_id: 'testUser',
+            author_ref: db.collection('users').doc('testUser'),
+            comment_count: 2,
+            content: 'Attending a fantastic tech event today! Learning so much.',
+            created_at: firebase.firestore.Timestamp.fromDate(new Date('2025-05-10T10:00:00Z')),
+            like_count: 8,
+            media_urls: ['https://placehold.co/150/event'],
+            poll_options: null,
+            updated_at: firebase.firestore.Timestamp.fromDate(new Date('2025-05-10T10:00:00Z'))
+          },
+          {
+            author_id: 'anotherUser', // New post for anotherUser
+            author_ref: db.collection('users').doc('anotherUser'),
+            comment_count: 3,
+            content: 'Just discovered a new hiking trail! Absolutely breathtaking views.',
+            created_at: firebase.firestore.Timestamp.fromDate(new Date('2025-06-25T11:00:00Z')),
+            like_count: 25,
+            media_urls: ['https://placehold.co/150/nature', 'https://placehold.co/150/mountain'],
+            poll_options: null,
+            updated_at: firebase.firestore.Timestamp.fromDate(new Date('2025-06-25T11:00:00Z'))
+          },
+          {
+            author_id: 'anotherUser', // Another new post for anotherUser
+            author_ref: db.collection('users').doc('anotherUser'),
+            comment_count: 1,
+            content: 'Enjoying a quiet evening with a good book. What are you reading?',
+            created_at: firebase.firestore.Timestamp.fromDate(new Date('2025-07-15T19:30:00Z')),
+            like_count: 18,
+            media_urls: [],
+            poll_options: null,
+            updated_at: firebase.firestore.Timestamp.fromDate(new Date('2025-07-15T19:30:00Z'))
+          },
+          {
+            author_id: 'testUser',
+            author_ref: db.collection('users').doc('testUser'),
+            comment_count: 1,
+            content: 'Just finished a great book on network architecture. Highly recommend!',
+            created_at: firebase.firestore.Timestamp.fromDate(new Date('2025-06-20T09:30:00Z')),
+            like_count: 20,
+            media_urls: [],
+            poll_options: null,
+            updated_at: firebase.firestore.Timestamp.fromDate(new Date('2025-06-20T09:30:00Z'))
+          },
+          {
+            author_id: 'testUser',
+            author_ref: db.collection('users').doc('testUser'),
+            comment_count: 0,
+            content: '', // Post with only media
+            created_at: firebase.firestore.Timestamp.fromDate(new Date('2025-06-22T14:00:00Z')),
+            like_count: 12,
+            media_urls: ['https://placehold.co/150/city', 'https://placehold.co/150/architecture'],
+            poll_options: null,
+            updated_at: firebase.firestore.Timestamp.fromDate(new Date('2025-06-22T14:00:00Z'))
+          }
+        ];
+
+
+      // Declare editSelectedFiles in a broader scope
+      let editSelectedFiles = [];
+
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const postButton = document.getElementById("postButton");
+        const mediaButton = document.getElementById("mediaButton");
+        const mediaInput = document.getElementById("mediaInput");
+        const mediaPreview = document.getElementById("mediaPreview");
+        const pollButton = document.getElementById("pollButton");
+        const pollCreation = document.getElementById("pollCreation");
+        const addOption = document.getElementById("addOption");
+        const pollOptions = document.getElementById("pollOptions");
+        const contactModal = document.getElementById("contactModal");
+        const contactDetails = document.getElementById("contactDetails");
+        const markAllRead = document.getElementById("markAllRead");
+        const postsFeed = document.getElementById("posts-feed");
+        const notificationsList = document.getElementById("notifications-list");
+        const notificationBadge = document.getElementById("notificationBadge");
+        const errorMessage = document.getElementById("errorMessage");
+        const dragDropArea = document.getElementById("dragDropArea");
+        const mediaToast = new bootstrap.Toast(document.getElementById("mediaToast"));
+        const programId = "TCNeeHc4qXeyJAsM2MqO";
+        const messageBadgeDropdown = document.getElementById("messageBadgeDropdown"); // Get the dropdown badge
+        const activityProgramme = document.getElementById("activity-programme"); // Get activity programme container
+        const addFriendModalBtn = document.getElementById("addFriendModalBtn"); // Get the new add friend button in the modal
+
+
+        // Sync message badge counts
+        if (messageBadgeDropdown) {
+            const messageBadge = document.getElementById("messageBadge");
+            if (messageBadge) {
+                messageBadgeDropdown.textContent = messageBadge.textContent;
+            }
+        }
+
+         // Helper function to format date string (YYYY-MM-DD) to "DayOfWeek DayOfMonthSuffix of MonthName"
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Invalid Date'; // Use getTime() to check for valid date
+
+            const optionsWeekday = { weekday: 'long' };
+            const optionsMonth = { month: 'long' };
+
+            const weekday = date.toLocaleDateString('en-US', optionsWeekday); // e.g., "Wednesday"
+            const monthName = date.toLocaleDateString('en-US', optionsMonth); // e.g., "May"
+            const day = date.getDate(); // e.g., 14
+
+            let suffix = 'th';
+            if (day === 1 || day === 21 || day === 31) {
+                suffix = 'st';
+            } else if (day === 2 || day === 22) {
+                suffix = 'nd';
+            } else if (day === 3 || day === 23) {
+                suffix = 'rd';
+            }
+
+            return `${weekday} ${day}${suffix} of ${monthName}`; // Assemble the string
+        }
+
+
+        // Check and add sample activities if not present
+        db.collection("programs").doc(programId).collection("activities")
+          .get()
+          .then((snapshot) => {
+            if (snapshot.empty) {
+              sampleActivities.forEach((activity) => {
+                db.collection("programs").doc(programId).collection("activities").add(activity);
+              });
+            }
+          });
+
+        /**
+         * Seeds default posts into Firestore if they don't already exist.
+         * This ensures that the simulated posts are available in the database without duplicates.
+         */
+        async function seedDefaultPosts() {
+            for (const post of defaultPostsData) {
+                const userPostsRef = db.collection("users").doc(post.author_id).collection("posts");
+
+                // Check if a post with the same content already exists for this author
+                const existingPostsSnapshot = await userPostsRef
+                    .where("content", "==", post.content)
+                    .limit(1)
+                    .get();
+
+                if (existingPostsSnapshot.empty) {
+                    // If no existing post with the same content is found, add it
+                    console.log(`Seeding post for ${post.author_id}: "${post.content.substring(0, 30)}..."`);
+                    // Remove author_ref as it's a Firestore DocumentReference and can't be directly set in a new doc without special handling
+                    const { author_ref, ...postDataToSeed } = post;
+                    await userPostsRef.add(postDataToSeed);
+                } else {
+                    console.log(`Post already exists for ${post.author_id}: "${post.content.substring(0, 30)}..." - skipping.`);
+                }
+            }
+            console.log("Default posts seeding complete.");
+        }
+
+
+        // Load posts from Firestore for all relevant users
+        // Updated loadPosts: Batch render + deferred comment/like loading
+        async function loadPosts() {
+          // Use a more refined loading skeleton if possible
+          postsFeed.innerHTML = `
+            <h2 class="mb-4 fw-bold">Posts Feed</h2>
+            <div class="row gy-4">
+              <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary shadow-sm" role="status">
+                  <span class="visually-hidden">Loading posts...</span>
+                </div>
+              </div>
+            </div>`;
+
+          let allPosts = [];
+          const userIdsToFetch = ["testUser", "anotherUser"];
+
+          try {
+            // Optimization: Fetch posts in parallel rather than a serial loop
+            const fetchPromises = userIdsToFetch.map(userId =>
+              db.collection("users").doc(userId).collection("posts").orderBy("created_at", "desc").get()
+            );
+
+            const snapshots = await Promise.all(fetchPromises);
+
+            snapshots.forEach(snapshot => {
+              snapshot.forEach(doc => {
+                allPosts.push({ id: doc.id, ...doc.data() });
+              });
+            });
+
+            // Sort by timestamp
+            allPosts.sort((a, b) => (b.created_at?.toMillis() || 0) - (a.created_at?.toMillis() || 0));
+
+            // gy-5 adds significant vertical spacing between card columns
+            let content = '<div class="row gy-5">';
+            const postsMetadata = [];
+
+            if (allPosts.length === 0) {
+              content += `
+                <div class="col-12">
+                  <div class="text-center py-5 bg-white rounded-4 shadow-sm border">
+                    <i class="bi bi-mailbox text-muted fs-1 mb-3"></i>
+                    <h5 class="text-secondary">No posts yet</h5>
+                    <p class="text-muted">Be the first to share something with the community!</p>
+                  </div>
+                </div>`;
+            } else {
+              allPosts.forEach((post) => {
+                content += renderPost(post.id, post);
+                postsMetadata.push({ id: post.id, author_id: post.author_id });
+              });
+            }
+            content += '</div>';
+
+            postsFeed.innerHTML = `<h2 class="mb-4 fw-bold">Posts Feed</h2>${content}`;
+
+            // Deferred initialization of interactive components
+            postsMetadata.forEach(({ id, author_id }) => {
+              // Small delay ensures DOM is fully painted
+              setTimeout(() => {
+                loadComments(id, author_id);
+                if (typeof checkLikeStatus === 'function') {
+                  checkLikeStatus(id);
+                }
+              }, 0);
+            });
+
+          } catch (e) {
+            console.error("Error loading posts:", e);
+            postsFeed.innerHTML = `
+              <div class="alert alert-danger rounded-4 shadow-sm d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+                <div><strong>Error:</strong> We couldn't fetch the feed right now. Please try again later.</div>
+              </div>`;
+          }
+        }
+
+        function loadActivities() {
+          activityProgramme.innerHTML =
+            '<h2 class="mb-4 fs-3 fw-semibold">Activity Programme</h2><div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+          db.collection("programs").doc(programId).collection("activities")
+            .orderBy("startDate", "asc")
+            .onSnapshot(
+              (snapshot) => {
+                const activitiesData = [];
+                snapshot.forEach(doc => activitiesData.push({ id: doc.id, ...doc.data() }));
+                renderActivities(activitiesData);
+              },
+              (e) => {
+                console.error("Error loading activities:", e);
+                activityProgramme.innerHTML =
+                  '<h2 class="mb-4 fs-3 fw-semibold">Activity Programme</h2><div class="alert alert-danger rounded-4" role="alert">Error loading activities: ' + e.message + ' <button class="btn btn-link text-decoration-none p-0 ms-2 try-again-activities">Try Again</button></div>';
+                const tryAgainButton = activityProgramme.querySelector(".try-again-activities");
+                if (tryAgainButton) tryAgainButton.addEventListener("click", () => loadActivities());
+              }
+            );
+        }
+
+        async function renderActivities(activitiesData) {
+          activityProgramme.innerHTML =
+            '<h2 class="mb-4 fs-3 fw-semibold">Activity Programme</h2>' +
+            '<div class="mb-4">' +
+              '<label for="activitySearch" class="form-label visually-hidden">Search activities</label>' +
+              '<div class="input-group">' +
+                '<span class="input-group-text"><i class="fas fa-search"></i></span>' +
+                '<input type="text" id="activitySearch" class="form-control rounded-end" placeholder="Search activities..." aria-describedby="activitySearchHelp" aria-label="Search activities by name" />' +
+              '</div>' +
+              '<div id="activitySearchHelp" class="form-text visually-hidden">Enter keywords to search activities by name.</div>' +
+              '<label for="activityFilter" class="form-label visually-hidden">Filter by status</label>' +
+              '<select id="activityFilter" class="form-select mt-2 rounded-3" aria-label="Filter activities by status">' +
+                '<option value="">All Statuses</option>' +
+                '<option value="open">Submissions Open</option>' +
+                '<option value="closed">Submissions Closed</option>' +
+              '</select>' +
+            '</div>';
+
+          if (activitiesData.length === 0) {
+            activityProgramme.insertAdjacentHTML('beforeend', '<div class="text-center py-5 text-muted"><i class="fas fa-calendar-times fs-1 mb-3"></i><p class="mb-0">No activities found.</p></div>');
+            return;
+          }
+
+          const iconMap = {
+            "Customer Support Shift": "fas fa-headset",
+            "Volunteer at Local Food Bank": "fas fa-hand-holding-heart"
+          };
+
+          // Use DocumentFragment for better performance on large lists
+          const fragment = document.createDocumentFragment();
+          const tempDiv = document.createElement('div');
+
+          for (const activity of activitiesData) {
+            const activityId = activity.id;
+
+            if (!activity.name || typeof activity.isSubmissionsOpen === 'undefined') {
+              console.warn(`Invalid activity data for ID ${activityId}:`, activity);
+              continue;
+            }
+
+            const interestedDoc = await db.collection("programs").doc(programId)
+              .collection("activities").doc(activityId)
+              .collection("interestedUsers").doc(currentUser.uid).get();
+            const isInterested = interestedDoc.exists;
+
+            const submissionStatus = activity.isSubmissionsOpen ? "Submissions Open" : "Submissions Closed";
+            const statusBadgeClass = activity.isSubmissionsOpen ? "bg-success" : "bg-secondary";
+
+            let buttonClass = "", buttonText = "", buttonDisabled = !activity.isSubmissionsOpen ? "disabled" : "";
+            let tooltipText = "";
+
+            if (activity.isSubmissionsOpen) {
+              if (isInterested) {
+                buttonClass = "btn-success";
+                buttonText = "Interest Registered";
+                tooltipText = "You have registered your interest. Staff will contact you to confirm participation.";
+              } else {
+                buttonClass = "btn-outline-success";
+                buttonText = "Join";
+                tooltipText = "Click to register your interest in participating. Staff will contact you to confirm.";
+              }
+            } else {
+              buttonClass = "btn-secondary";
+              buttonText = "Submissions Closed";
+              tooltipText = "Submissions are currently closed for this activity.";
+            }
+
+            const activityIcon = iconMap[activity.name] || "fas fa-calendar-alt";
+            const formattedStartDate = formatDate(activity.startDate);
+            const formattedEndDate = formatDate(activity.endDate);
+            const dateRange = formattedStartDate === formattedEndDate ? formattedStartDate : `${formattedStartDate} to ${formattedEndDate}`;
+
+            const activityHTML = `
+              <div class="card mb-4 activity-card ux-card-hover border-0 shadow-sm rounded-4" data-activity-id="${activityId}">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-3">
+                  <div class="d-flex flex-column gap-3">
+                    <!-- Title, Icon, and Status Badge -->
+                    <div class="d-flex align-items-start gap-3">
+                      <i class="${activityIcon} fs-4 text-primary flex-shrink-0 mt-1" aria-hidden="true"></i>
+                      <div class="flex-grow-1 min-w-0">
+                        <h5 class="card-title h5 fw-semibold text-break mb-1" title="${activity.name}">
+                          ${activity.name}
+                        </h5>
+                        <span class="badge ${statusBadgeClass} rounded-pill px-3 py-1">${submissionStatus}</span>
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-column flex-md-row gap-2 ms-md-auto">
+                      <button class="btn btn-sm btn-outline-primary rounded-pill px-4 d-flex align-items-center justify-content-center"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#activityDetails_${activityId}"
+                              aria-expanded="false"
+                              aria-controls="activityDetails_${activityId}">
+                        <i class="fas fa-info-circle me-1"></i>View Details
+                      </button>
+                      <button class="btn btn-sm ${buttonClass} interest-btn transition-all rounded-pill px-4 d-flex align-items-center justify-content-center"
+                              data-activity-id="${activityId}"
+                              data-title="${activity.name}"
+                              ${buttonDisabled}
+                              aria-pressed="${isInterested}"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="top"
+                              title="${tooltipText}">
+                        <i class="fas fa-${isInterested ? 'check' : 'plus'} me-1"></i>${buttonText}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="interestNotification_${activityId}"
+                     class="${isInterested ? '' : 'd-none'} alert alert-success mx-4 mt-0 mb-3 rounded-3"
+                     role="alert">
+                  <i class="fas fa-check-circle me-1"></i> Your interest has been notified to staff.
+                </div>
+
+                <div id="activityDetails_${activityId}" class="collapse">
+                  <div class="card-body px-4 pt-0">
+                    <ul class="list-unstyled mb-4">
+                      <li class="mb-2"><strong>Cost:</strong> £${activity.cost || 0}</li>
+                      <li class="mb-2"><strong>Location:</strong> ${activity.location || 'N/A'}</li>
+                      <li class="mb-2"><strong>Dates:</strong> ${dateRange}</li>
+                      <li class="mb-2"><strong>Time:</strong> ${activity.startTime || 'N/A'} to ${activity.endTime || 'N/A'}</li>
+                    </ul>
+                    <p class="text-muted mb-3">${activity.description || 'No description available'}</p>
+                    <img src="${activity.imageUrl || 'https://placehold.co/800x450?text=Activity+Image'}"
+                         alt="${activity.name}"
+                         class="img-fluid rounded-3 shadow-sm w-100"
+                         loading="lazy"
+                         onerror="this.src='https://placehold.co/800x450?text=No+Image'">
+                  </div>
+                </div>
+              </div>
+              `;
+
+            tempDiv.insertAdjacentHTML('beforeend', activityHTML);
+          }
+
+          // Append all cards at once for performance
+          while (tempDiv.firstChild) {
+            fragment.appendChild(tempDiv.firstChild);
+          }
+          activityProgramme.appendChild(fragment);
+
+          // Filtering logic (unchanged except minor selector safety)
+          function filterActivities() {
+            const searchInput = document.getElementById("activitySearch");
+            const filterSelect = document.getElementById("activityFilter");
+            if (!searchInput || !filterSelect) return;
+
+            const searchTerm = searchInput.value.toLowerCase();
+            const filterStatus = filterSelect.value;
+            const cards = activityProgramme.querySelectorAll(".activity-card");
+
+            cards.forEach(card => {
+              const title = card.querySelector(".card-title")?.textContent.toLowerCase() || '';
+              const status = card.querySelector(".badge")?.textContent.includes("Open") ? "open" : "closed";
+              const matchesSearch = title.includes(searchTerm);
+              const matchesFilter = !filterStatus || status === filterStatus;
+              card.style.display = matchesSearch && matchesFilter ? "" : "none";
+            });
+
+            // Re-init tooltips after filter
+            const tooltipList = activityProgramme.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipList.forEach(el => new bootstrap.Tooltip(el));
+          }
+
+          const searchInput = document.getElementById("activitySearch");
+          const filterSelect = document.getElementById("activityFilter");
+          if (searchInput && filterSelect) {
+            searchInput.addEventListener("input", filterActivities);
+            filterSelect.addEventListener("change", filterActivities);
+            filterActivities();
+          }
+        }
+
+
+        // Render a single post
+        // Updated renderPost function with improved comment input spacing
+        function renderPost(postId, post) {
+          const user = users[post.author_id] || {
+            name: "Unknown",
+            photo: "https://placehold.co/40x40      "
+          };
+          const commentsId = `comments${postId}`;
+          const carouselId = `carousel${postId}`;
+
+          const mediaHtml =
+            post.media_urls && post.media_urls.length > 0
+              ? `
+                <div id="${carouselId}" class="carousel slide mt-3">
+                  <div class="carousel-inner rounded">
+                    ${post.media_urls
+                      .map(
+                        (url, index) => `
+                          <div class="carousel-item ${index === 0 ? "active" : ""}">
+                            <img src="${url}" class="d-block w-100" alt="Media ${index + 1}"
+                                 loading="lazy" onerror="this.src='https://placehold.co/600x400      ';">
+                          </div>
+                        `
+                      )
+                      .join("")}
+                  </div>
+                  ${post.media_urls.length > 1
+                    ? `
+                      <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                      </button>
+                      <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                      </button>
+                    `
+                    : ""}
+                </div>
+              `
+              : "";
+
+          return `
+            <div class="col-12 mb-4">
+              <div class="card h-100" data-post-id="${postId}">
+                <div class="card-header bg-transparent border-0">
+                  <div class="d-flex align-items-center mb-3">
+                    <img src="${user.photo}" alt="${user.name}" class="rounded-circle post-profile-pic me-3" style="width:40px;height:40px;"
+                         data-bs-toggle="modal" data-bs-target="#contactModal" data-user-id="${post.author_id}"/>
+                    <div>
+                      <a class="post-user-name fw-semibold text-decoration-none" href="#"
+                         data-bs-toggle="modal" data-bs-target="#contactModal" data-user-id="${post.author_id}">
+                        ${user.name}
+                      </a>
+                      <div class="text-muted small">
+                        ${new Date(post.created_at.toMillis()).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  ${post.content ? `<p class="post-content mb-3">${post.content}</p>` : ''}
+                  ${mediaHtml}
+                </div>
+
+                <!-- Card footer with horizontal actions -->
+                <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-3 gap-md-4 py-3 px-4">
+                  <div class="d-flex flex-wrap gap-3 gap-md-4 align-items-center">
+                    <button type="button" class="btn btn-outline-secondary text-muted px-3 py-2 d-inline-flex align-items-center gap-2 like-btn action-btn" data-post-id="${postId}">
+                      <i class="far fa-heart fs-5"></i>
+                      <span class="d-none d-md-inline">Like</span>
+                      <span class="like-count ms-1">${post.like_count || 0}</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary text-muted px-3 py-2 d-inline-flex align-items-center gap-2 comment-btn"
+                            data-bs-toggle="collapse" data-bs-target="#${commentsId}" aria-expanded="false" aria-controls="${commentsId}">
+                      <i class="far fa-comment fs-5"></i>
+                      <span class="d-none d-md-inline">Comment</span>
+                      <span class="comment-count ms-1">${post.comment_count || 0}</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary text-muted px-3 py-2 d-inline-flex align-items-center gap-2 share-btn action-btn" data-post-id="${postId}">
+                      <i class="fas fa-share fs-5"></i>
+                      <span class="d-none d-md-inline">Share</span>
+                    </button>
+                  </div>
+
+                  ${post.author_id === currentUser.uid ? `
+                    <div class="dropdown">
+                      <button class="btn btn-outline-secondary text-muted px-3 py-2 d-inline-flex align-items-center gap-2 dropdown-toggle"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fs-5"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <button type="button" class="dropdown-item edit-btn action-btn" data-post-id="${postId}">
+                            <i class="fas fa-edit me-2"></i>Edit
+                          </button>
+                        </li>
+                        <li>
+                          <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                          <button type="button" class="dropdown-item text-danger delete-btn action-btn" data-post-id="${postId}">
+                            <i class="fas fa-trash me-2"></i>Delete
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- Comments collapse section -->
+                <div class="collapse mt-3" id="${commentsId}">
+                  <div id="comments-list-${postId}"></div>
+                  <form class="add-comment-form mt-3" data-post-id="${postId}">
+                    <div class="card border-0 shadow-sm rounded-4">
+                      <div class="card-body p-3">
+                        <div class="input-group">
+                          <input type="text" class="form-control border-0 bg-light rounded-pill ps-4 py-2 shadow-none"
+                                 placeholder="Write a comment..."
+                                 required
+                                 style="font-size: 0.9rem; border-top-right-radius: 50rem !important; border-bottom-right-radius: 50rem !important;">
+                          <div class="input-group-text bg-transparent border-0 px-1">
+                            <button class="btn btn-primary rounded-pill px-4 shadow-sm" type="submit">
+                              <i class="fas fa-paper-plane me-1"></i>Post
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>`;
+        }
+
+        // Simple HTML escape utility (security)
+        function escapeHTML(str) {
+          return str.replace(/[&<>"']/g, (match) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          }[match]));
+        }
+
+        // Load comments for a post
+        function loadComments(postId, authorId) {
+          const container = document.getElementById(`comments-list-${postId}`);
+
+          if (!container) {
+            console.warn(`Comments container not ready for post ${postId}, retrying...`);
+            requestAnimationFrame(() => loadComments(postId, authorId));
+            return;
+          }
+
+          // Use 'placeholder-glow' for a modern skeleton-like loading state
+          container.innerHTML = `
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary shadow-sm" role="status" style="width: 2rem; height: 2rem;">
+                <span class="visually-hidden">Loading comments...</span>
+              </div>
+            </div>`;
+
+          const commentsRef = db
+            .collection("users")
+            .doc(authorId)
+            .collection("posts")
+            .doc(postId)
+            .collection("comments");
+
+          commentsRef
+            .orderBy("created_at", "asc")
+            .onSnapshot(
+              (snapshot) => {
+                container.innerHTML = "";
+
+                if (snapshot.empty) {
+                  container.innerHTML = `
+                    <div class="text-center py-5 bg-light rounded-3 border border-dashed">
+                      <i class="bi bi-chat-dots text-muted fs-2 mb-2"></i>
+                      <p class="text-secondary mb-0">No comments yet. Be the first to join the conversation!</p>
+                    </div>`;
+                  return;
+                }
+
+                snapshot.forEach((doc) => {
+                  const comment = doc.data();
+                  const user = users[comment.author_id] || {
+                    name: "Unknown User",
+                    photo: "https://placehold.co/40x40  ",
+                  };
+
+                  const isOwner = comment.author_id === currentUser.uid;
+                  const safeContent = escapeHTML(comment.content || "");
+                  const dateStr = new Date(comment.created_at.toMillis()).toLocaleString(undefined, {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                  });
+
+                  const commentHTML = `
+                  <div class="d-flex justify-content-center gap-3 mb-4 align-items-start" data-comment-id="${doc.id}">
+                    <div class="flex-shrink-0">
+                      <img
+                        src="${user.photo}"
+                        alt="${user.name}"
+                        class="rounded-circle shadow-sm border border-light"
+                        width="40"
+                        height="40"
+                        style="cursor: pointer; object-fit: cover;"
+                        data-bs-toggle="modal"
+                        data-bs-target="#contactModal"
+                        data-user-id="${comment.author_id}"
+                      >
+                    </div>
+
+                    <div class="flex-grow-1" style="max-width: 85%;">
+                      <div class="d-inline-block w-100">
+                        <div class="bg-light p-3 rounded-4 mb-2 shadow-sm border border-opacity-10 border-dark">
+                          <div class="d-flex justify-content-between align-items-center mb-1 gap-3">
+                            <h6 class="mb-0 fw-bold">
+                              <a href="#" class="text-decoration-none text-dark link-primary small" data-bs-toggle="modal" data-bs-target="#contactModal" data-user-id="${comment.author_id}">
+                                ${user.name}
+                              </a>
+                            </h6>
+                            <small class="text-muted fw-light" style="font-size: 0.7rem;">
+                              ${dateStr}
+                            </small>
+                          </div>
+                          <p class="mb-0 text-dark opacity-75 small lh-base" style="word-break: break-word;">${safeContent}</p>
+                        </div>
+
+                        ${isOwner ? `
+                        <div class="comment-actions d-flex gap-3 ps-2">
+                          <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 link-secondary edit-comment-btn shadow-none" style="font-size: 0.75rem;">
+                            <i class="bi bi-pencil-square me-1"></i>Edit
+                          </button>
+                          <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 link-danger delete-comment-btn shadow-none" style="font-size: 0.75rem;">
+                            <i class="bi bi-trash3 me-1"></i>Delete
+                          </button>
+                        </div>
+
+                        <div class="edit-comment-form d-none mt-2 card border-0 shadow-sm">
+                          <div class="card-body p-2">
+                            <textarea class="form-control form-control-sm border-0 bg-light mb-2 shadow-none" rows="2" style="resize: none;">${safeContent}</textarea>
+                            <div class="d-flex gap-2">
+                              <button type="button" class="btn btn-primary btn-sm px-3 rounded-pill save-comment-btn">Save</button>
+                              <button type="button" class="btn btn-outline-secondary btn-sm px-3 rounded-pill cancel-comment-btn">Cancel</button>
+                            </div>
+                          </div>
+                        </div>
+                        ` : ""}
+                      </div>
+                    </div>
+                  </div>`;
+
+                  container.insertAdjacentHTML("beforeend", commentHTML);
+                });
+              },
+              (error) => {
+                console.error("Error loading comments:", error);
+                container.innerHTML = `
+                  <div class="alert alert-danger d-flex align-items-center rounded-4 border-0 shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>
+                      <strong>Failed to load comments:</strong> ${error.message || "Unknown error"}
+                    </div>
+                  </div>`;
+              }
+            );
+        }
+
+        // Add this JavaScript to make the click area trigger the media input
+        document.getElementById('clickToSelectArea').addEventListener('click', function() {
+          document.getElementById('mediaInput').click();
+        });
+
+        // Check if current user has liked a post
+        function checkLikeStatus(postId) {
+          const likeBtn = document.querySelector(
+            `.like-btn[data-post-id="${postId}"]`
+          );
+           if (!likeBtn) return; // Exit if like button not found
+          db.collection("users")
+            .doc("testUser") // Assuming posts are under a user's document
+            .collection("posts")
+            .doc(postId)
+            .collection("likes")
+            .doc(currentUser.uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                likeBtn.classList.add("liked");
+                likeBtn.querySelector("i").classList.replace("far", "fas");
+              }
+            });
+        }
+
+        // Helper function to render media previews
+        function renderMediaPreviews(filesOrUrls, mediaPreviewElement, errorMessageElement) {
+            mediaPreviewElement.innerHTML = ""; // Clear existing previews
+            errorMessageElement.style.display = "none"; // Hide any previous error messages
+
+            if (filesOrUrls.length > 0) {
+                mediaPreviewElement.classList.remove("d-none");
+                filesOrUrls.forEach((item, index) => {
+                    if (typeof item === "string") {
+                        // Existing media URL
+                        const previewHtml = `
+                            <div class="media-preview">
+                                <img src="${item}" alt="Existing media" class="img-fluid rounded" loading="lazy" onerror="this.src='https://placehold.co/600x400';">
+                                <button type="button" class="remove-media-preview" data-index="${index}" aria-label="Remove media"><i class="fas fa-times"></i></button>
+                            </div>
+                        `;
+                        mediaPreviewElement.insertAdjacentHTML("beforeend", previewHtml);
+                    } else {
+                        // New file
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const previewHtml = `
+                                <div class="media-preview">
+                                    ${
+                                        item.type.startsWith("image/")
+                                            ? `<img src="${event.target.result}" alt="Preview of ${item.name}" class="img-fluid rounded" loading="lazy" />`
+                                            : `<video src="${event.target.result}" controls aria-label="Video preview of ${item.name}" class="img-fluid rounded"></video>`
+                                    }
+                                    <button type="button" class="remove-media-preview" data-index="${index}" aria-label="Remove ${item.name}"><i class="fas fa-times"></i></button>
+                                </div>
+                            `;
+                            mediaPreviewElement.insertAdjacentHTML("beforeend", previewHtml);
+                        };
+                        reader.readAsDataURL(item);
+                    }
+                });
+            } else {
+                mediaPreviewElement.classList.add("d-none");
+            }
+        }
+
+
+        // Handle media input and preview for CREATE post
+        let selectedFiles = []; // Files for the create post form
+        if (mediaButton && mediaInput && mediaPreview && errorMessage && dragDropArea) {
+            mediaButton.addEventListener("click", () => {
+              mediaInput.click();
+            });
+
+            mediaInput.addEventListener("change", (e) => {
+              const newFiles = Array.from(e.target.files);
+              // Combine existing and new files, filter out duplicates
+              const combinedFiles = [...selectedFiles, ...newFiles];
+              const uniqueFiles = combinedFiles.filter((file, index, self) =>
+                index === self.findIndex((f) => (
+                  f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
+                ))
+              );
+
+              // Validate unique files and update selectedFiles
+               const validFiles = uniqueFiles.filter((file) => {
+                const isValidType = file.type.startsWith("image/") || file.type.startsWith("video/");
+                const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+
+                if (!isValidType) {
+                  document.querySelector("#mediaToast .toast-body").textContent = `Invalid file type: ${file.name}`;
+                  document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                  document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                  mediaToast.show();
+                  return false;
+                } else if (!isValidSize) {
+                  document.querySelector("#mediaToast .toast-body").textContent = `File ${file.name} exceeds 10MB limit`;
+                  document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                  document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                  mediaToast.show();
+                  return false;
+                }
+                return true;
+              });
+
+              selectedFiles = validFiles; // Update the selectedFiles array
+
+              renderMediaPreviews(selectedFiles, mediaPreview, errorMessage);
+
+               // Show success toast if valid files were added
+               if (validFiles.length > 0) {
+                 document.querySelector("#mediaToast .toast-body").textContent = `${validFiles.length} file${validFiles.length > 1 ? 's' : ''} added successfully`;
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                 document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                 mediaToast.show();
+               }
+
+            });
+
+            mediaPreview.addEventListener("click", (e) => {
+              if (e.target.closest(".remove-media-preview")) {
+                const index = parseInt(e.target.closest(".remove-media-preview").dataset.index);
+                const removedItem = selectedFiles[index];
+                selectedFiles.splice(index, 1); // Remove from the array
+                renderMediaPreviews(selectedFiles, mediaPreview, errorMessage); // Re-render previews
+
+                 // Show removal toast
+                 document.querySelector("#mediaToast .toast-body").textContent = `${typeof removedItem === "string" ? "Media" : removedItem.name} removed`;
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-success", "bg-danger", "text-white");
+                 mediaToast.show();
+              }
+            });
+
+             // Drag and drop for create post
+            dragDropArea.addEventListener("dragover", (e) => {
+              e.preventDefault();
+              dragDropArea.classList.add("drag-over");
+            });
+
+            dragDropArea.addEventListener("dragleave", () => {
+              dragDropArea.classList.remove("drag-over");
+            });
+
+            dragDropArea.addEventListener("drop", (e) => {
+              e.preventDefault();
+              dragDropArea.classList.remove("drag-over");
+              const files = Array.from(e.dataTransfer.files);
+
+              // Combine existing and new files, filter out duplicates
+              const combinedFiles = [...selectedFiles, ...files];
+              const uniqueFiles = combinedFiles.filter((file, index, self) =>
+                index === self.findIndex((f) => (
+                  f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
+                ))
+              );
+
+               // Validate unique files and update selectedFiles
+               const validFiles = uniqueFiles.filter((file) => {
+                const isValidType = file.type.startsWith("image/") || file.type.startsWith("video/");
+                const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+
+                if (!isValidType) {
+                  document.querySelector("#mediaToast .toast-body").textContent = `Invalid file type: ${file.name}`;
+                  document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                  document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                  mediaToast.show();
+                  return false;
+                } else if (!isValidSize) {
+                  document.querySelector("#mediaToast .toast-body").textContent = `File ${file.name} exceeds 10MB limit`;
+                  document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                  document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                  mediaToast.show();
+                  return false;
+                }
+                return true;
+              });
+
+              selectedFiles = validFiles; // Update the selectedFiles array
+
+              renderMediaPreviews(selectedFiles, mediaPreview, errorMessage);
+
+               // Show success toast if valid files were added
+               if (validFiles.length > 0) {
+                 document.querySelector("#mediaToast .toast-body").textContent = `${validFiles.length} file${validFiles.length > 1 ? 's' : ''} added successfully`;
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                 document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                 mediaToast.show();
+               }
+            });
+
+            // Allow clicking the drag area to open file input
+            dragDropArea.addEventListener("click", (e) => {
+              // Ensure click is directly on the drag area or text, not on previews
+              if (e.target === dragDropArea || e.target.classList.contains("drag-drop-text")) {
+                mediaInput.click();
+              }
+            });
+        }
+
+
+        // Poll creation handler
+        pollButton.addEventListener("click", () => {
+          pollCreation.classList.toggle("d-none");
+        });
+        let optionCount = 2;
+        addOption.addEventListener("click", () => {
+          if (optionCount < 4) {
+            optionCount++;
+            const newOption = document.createElement("input");
+            newOption.type = "text";
+            newOption.className = "form-control mb-2";
+            newOption.placeholder = `Option ${optionCount}`;
+            pollOptions.appendChild(newOption);
+          }
+        });
+        let isSubmitting = false;
+
+        function uxSanitizeText(x) {
+          return typeof x === "string"
+            ? x.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "").trim()
+            : "";
+        }
+
+        function uxToast(msg, ok) {
+          const body = document.querySelector("#mediaToast .toast-body");
+          const head = document.querySelector("#mediaToast .toast-header");
+          if (body) body.textContent = msg;
+          if (head) {
+            if (ok) {
+              head.classList.remove("bg-danger");
+              head.classList.add("bg-success", "text-white");
+            } else {
+              head.classList.add("bg-danger", "text-white");
+              head.classList.remove("bg-success");
+            }
+          }
+          if (mediaToast) mediaToast.show();
+        }
+
+        async function uxUploadFile(file, postId, index) {
+          if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+            throw new Error(`Invalid file type for ${file.name}`);
+          }
+          if (file.size > 10 * 1024 * 1024) {
+            throw new Error(`File ${file.name} exceeds 10MB limit`);
+          }
+          const ext = file.name.split(".").pop();
+          const storagePath = `post_media/${currentUser.uid}/${postId}/${Date.now()}_${index}.${ext}`;
+          const storageRef = storage.ref(storagePath);
+          const snap = await storageRef.put(file);
+          return await snap.ref.getDownloadURL();
+        }
+
+        postButton.addEventListener("click", async () => {
+          if (isSubmitting) return;
+          isSubmitting = true;
+
+          const postContentRaw = document.getElementById("postContent").value;
+          const postContent = uxSanitizeText(postContentRaw);
+          const pollInputs = pollOptions.querySelectorAll("input");
+          const pollOptionsData = Array.from(pollInputs)
+            .map(v => uxSanitizeText(v.value))
+            .filter(v => v);
+
+          if (!postContent && selectedFiles.length === 0 && pollOptionsData.length === 0) {
+            errorMessage.textContent = "Please add content, media, or a poll to post.";
+            errorMessage.style.display = "block";
+            uxToast("Please add content, media, or a poll", false);
+            isSubmitting = false;
+            return;
+          }
+
+          errorMessage.style.display = "none";
+          let postId;
+
+          try {
+            const postRef = await db
+              .collection("users")
+              .doc(currentUser.uid)
+              .collection("posts")
+              .add({
+                author_id: currentUser.uid,
+                author_ref: db.collection("users").doc(currentUser.uid),
+                content: postContent,
+                media_urls: [],
+                poll_options: pollOptionsData.length > 0 ? pollOptionsData : null,
+                created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                updated_at: firebase.firestore.FieldValue.serverTimestamp(),
+                like_count: 0,
+                comment_count: 0
+              });
+
+            postId = postRef.id;
+
+            const mediaUrls = [];
+            if (selectedFiles.length > 0) {
+              const uploads = selectedFiles.map((file, i) =>
+                uxUploadFile(file, postId, i).catch(err => {
+                  uxToast(`Failed to upload file: ${file.name}`, false);
+                  throw err;
+                })
+              );
+
+              const results = await Promise.allSettled(uploads);
+              results.forEach(r => {
+                if (r.status === "fulfilled") mediaUrls.push(r.value);
+              });
+            }
+
+            await postRef.update({
+              media_urls: mediaUrls,
+              updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            document.getElementById("postContent").value = "";
+            if (mediaInput) mediaInput.value = "";
+            if (mediaPreview) {
+              mediaPreview.textContent = "";
+              mediaPreview.innerHTML = "";
+            }
+            selectedFiles = [];
+            if (pollCreation) pollCreation.classList.add("d-none");
+            pollInputs.forEach(input => (input.value = ""));
+            while (pollOptions.children.length > 2) {
+              pollOptions.removeChild(pollOptions.lastChild);
+            }
+            optionCount = 2;
+
+            uxToast("Post created successfully", true);
+          } catch (error) {
+            errorMessage.textContent = `Failed to create post: ${error.message || "Unknown error"}`;
+            errorMessage.style.display = "block";
+            uxToast(`Failed to create post: ${error.message || "Unknown error"}`, false);
+
+            if (postId) {
+              await db
+                .collection("users")
+                .doc(currentUser.uid)
+                .collection("posts")
+                .doc(postId)
+                .delete()
+                .catch(() => {});
+            }
+          } finally {
+            isSubmitting = false;
+          }
+        });
+
+        // Handle post actions (like, share, edit, delete)
+        postsFeed.addEventListener("click", async (e) => {
+          const likeBtn = e.target.closest(".like-btn");
+          const shareBtn = e.target.closest(".share-btn");
+          const editBtn = e.target.closest(".edit-btn");
+          const deleteBtn = e.target.closest(".delete-btn");
+          const editCommentBtn = e.target.closest(".edit-comment-btn"); // Added
+          const deleteCommentBtn = e.target.closest(".delete-comment-btn"); // Added
+          const saveCommentBtn = e.target.closest(".save-comment-btn"); // Added
+          const cancelCommentBtn = e.target.closest(".cancel-comment-btn"); // Added
+
+
+          if (likeBtn) {
+            const postId = likeBtn.dataset.postId;
+            const liked = likeBtn.classList.contains("liked");
+            // Determine the author of the post to correctly reference their posts collection
+            const postCard = likeBtn.closest(".card");
+            const postAuthorId = postCard.querySelector(".post-profile-pic").dataset.userId;
+
+            const likeRef = db
+              .collection("users")
+              .doc(postAuthorId) // Use the post's author ID here
+              .collection("posts")
+              .doc(postId)
+              .collection("likes")
+              .doc(currentUser.uid);
+            try {
+                // Optimistic UI update
+                const likeCountSpan = likeBtn.querySelector(".like-count");
+                const currentLikeCount = parseInt(likeCountSpan.textContent);
+                likeBtn.classList.toggle("liked");
+                likeBtn.querySelector("i").classList.toggle("far", liked);
+                likeBtn.querySelector("i").classList.toggle("fas", !liked);
+                likeCountSpan.textContent = currentLikeCount + (liked ? -1 : 1);
+
+
+                if (liked) {
+                  await likeRef.delete();
+                  await db.collection("users")
+                    .doc(postAuthorId) // Use the post's author ID here
+                    .collection("posts")
+                    .doc(postId)
+                    .update({
+                      like_count: firebase.firestore.FieldValue.increment(-1)
+                    });
+                } else {
+                  await likeRef.set({ userId: currentUser.uid });
+                  await db.collection("users")
+                    .doc(postAuthorId) // Use the post's author ID here
+                    .collection("posts")
+                    .doc(postId)
+                    .update({
+                      like_count: firebase.firestore.FieldValue.increment(1)
+                    });
+                }
+                 // UI update is already done optimistically above
+
+            } catch (e) {
+                console.error("Error updating like status:", e);
+                 // Revert UI on error
+                 const likeCountSpan = likeBtn.querySelector(".like-count");
+                 const currentLikeCount = parseInt(likeCountSpan.textContent);
+                 likeBtn.classList.toggle("liked");
+                 likeBtn.querySelector("i").classList.toggle("far", !liked);
+                 likeBtn.querySelector("i").classList.toggle("fas", liked);
+                 likeCountSpan.textContent = currentLikeCount + (liked ? 1 : -1);
+
+                document.querySelector("#mediaToast .toast-body").textContent = `Failed to update like status: ${e.message}`;
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                mediaToast.show();
+            }
+            return;
+          }
+
+          if (shareBtn) {
+            const postId = shareBtn.dataset.postId;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?post=${postId}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              shareBtn.innerHTML = '<i class="fas fa-share me-1"></i> Shared!';
+              setTimeout(
+                () =>
+                  (shareBtn.innerHTML = `<i class="fas fa-share me-1"></i> Share`),
+                1500
+              );
+            }).catch(err => {
+                console.error("Error sharing post:", err);
+                document.querySelector("#mediaToast .toast-body").textContent = `Failed to copy share link: ${err.message}`;
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                mediaToast.show();
+            });
+            return;
+          }
+
+          if (editBtn) {
+            const postId = editBtn.dataset.postId;
+            const postCard = document.querySelector(`[data-post-id="${postId}"]`);
+            const postContentElement = postCard.querySelector(".post-content");
+            const postBody = postCard.querySelector(".card-body");
+             // Hide post content and action buttons for the post being edited
+             if (postContentElement) postContentElement.style.display = 'none';
+             const postActions = postCard.querySelector(".card-footer .post-actions");
+             if (postActions) postActions.style.display = 'none';
+
+            try {
+                 const doc = await db.collection("users")
+                  .doc(currentUser.uid) // Assuming posts are under current user's document for editing
+                  .collection("posts")
+                  .doc(postId)
+                  .get();
+
+                if (!doc.exists) {
+                    console.error("Post not found for editing:", postId);
+                    document.querySelector("#mediaToast .toast-body").textContent = "Post not found for editing.";
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                    mediaToast.show();
+                     // Restore visibility if post not found
+                     if (postContentElement) postContentElement.style.display = 'block';
+                     if (postActions) postActions.style.display = 'flex';
+                    return;
+                }
+
+                const post = doc.data();
+                const originalContent = post.content;
+                const originalMediaUrls = post.media_urls || [];
+
+                // Store original content and media for cancel
+                postCard.dataset.originalContent = originalContent;
+                postCard.dataset.originalMediaUrls = JSON.stringify(originalMediaUrls);
+
+                const editFormHTML = `
+                  <form class="edit-form" data-post-id="${postId}">
+                    <div class="drag-drop-area edit-drag-drop-area" role="region" aria-dropeffect="copy">
+                      <textarea class="form-control mb-2 edit-post-content" rows="3">${originalContent}</textarea>
+                      <p class="drag-drop-text">Drag and drop photos or videos here, or click to select</p>
+                      <input type="file" class="form-control mb-2 edit-media-input" accept="image/*,video/*" multiple style="display: none;" />
+                      <div class="media-preview-container edit-media-preview mt-3 ${originalMediaUrls.length > 0 ? '' : 'd-none'}"></div>
+                      <div class="error-message edit-error-message"></div>
+                      <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary btn-sm save-post-btn">Save</button>
+                        <button type="button" class="btn btn-secondary btn-sm cancel-post-btn">Cancel</button>
+                      </div>
+                    </div>
+                  </form>
+                `;
+                postBody.insertAdjacentHTML('afterbegin', editFormHTML); // Insert before the content element
+
+                // Handle media preview for edit form
+                // Initialize the global editSelectedFiles with original media URLs
+                editSelectedFiles = originalMediaUrls.map(url => url);
+                const editMediaInput = postBody.querySelector(".edit-media-input");
+                const editMediaPreview = postBody.querySelector(".edit-media-preview");
+                const editErrorMessage = postBody.querySelector(".edit-error-message");
+                const editDragDropArea = postBody.querySelector(".edit-drag-drop-area");
+
+                // Render initial previews for existing media
+                renderMediaPreviews(editSelectedFiles, editMediaPreview, editErrorMessage);
+
+
+                // Drag and drop for edit form
+                if (editDragDropArea) {
+                  editDragDropArea.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    editDragDropArea.classList.add("drag-over");
+                  });
+
+                  editDragDropArea.addEventListener("dragleave", () => {
+                    editDragDropArea.classList.remove("drag-over");
+                  });
+
+                  editDragDropArea.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    editDragDropArea.classList.remove("drag-over");
+                    const files = Array.from(e.dataTransfer.files);
+
+                     // Combine existing (in editSelectedFiles) and new files, filter duplicates
+                    const combinedFiles = [...editSelectedFiles, ...files];
+                    const uniqueFiles = combinedFiles.filter((item, index, self) =>
+                       index === self.findIndex((t) => (
+                           // Compare by URL for strings, and by name/size/lastModified for Files
+                           typeof t === 'string' ? t === item : (typeof item !== 'string' && t.name === item.name && t.size === item.size && t.lastModified === item.lastModified)
+                       ))
+                    );
+
+                    editSelectedFiles = uniqueFiles; // Update the global array
+
+                    renderMediaPreviews(editSelectedFiles, editMediaPreview, editErrorMessage);
+
+                     // Show success toast if valid files were added
+                     const validFilesCount = files.filter((file) => {
+                        const isValidType = file.type.startsWith("image/") || file.type.startsWith("video/");
+                        const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+                        return isValidType && isValidSize;
+                     }).length;
+
+                     if (validFilesCount > 0) {
+                        document.querySelector("#mediaToast .toast-body").textContent = `${validFilesCount} file${validFilesCount > 1 ? 's' : ''} added successfully`;
+                        document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                        document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                        mediaToast.show();
+                     }
+                  });
+
+                  // Allow clicking the drag area to open file input
+                  editDragDropArea.addEventListener("click", (e) => {
+                     // Ensure click is directly on the drag area or text, not on previews
+                     if (e.target === editDragDropArea || e.target.classList.contains("drag-drop-text")) {
+                       editMediaInput.click();
+                     }
+                   });
+                }
+
+                // Media input change for edit form
+                if(editMediaInput) {
+                     editMediaInput.addEventListener("change", (e) => {
+                        const files = Array.from(e.target.files);
+
+                        // Combine existing (in editSelectedFiles) and new files, filter duplicates
+                        const combinedFiles = [...editSelectedFiles, ...files];
+                        const uniqueFiles = combinedFiles.filter((item, index, self) =>
+                           index === self.findIndex((t) => (
+                               // Compare by URL for strings, and by name/size/lastModified for Files
+                               typeof t === 'string' ? t === item : (typeof item !== 'string' && t.name === item.name && t.size === item.size && t.lastModified === item.lastModified)
+                           ))
+                        );
+
+                        editSelectedFiles = uniqueFiles; // Update the global array
+
+                        renderMediaPreviews(editSelectedFiles, editMediaPreview, editErrorMessage);
+
+                         // Show success toast if valid files were added
+                         const validFilesCount = files.filter((file) => {
+                            const isValidType = file.type.startsWith("image/") || file.type.startsWith("video/");
+                            const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+                            return isValidType && isValidSize;
+                         }).length;
+
+                         if (validFilesCount > 0) {
+                           document.querySelector("#mediaToast .toast-body").textContent = `${validFilesCount} file${validFilesCount > 1 ? 's' : ''} added successfully`;
+                           document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                           document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                           mediaToast.show();
+                         }
+                    });
+                }
+
+                // Media preview removal for edit form
+                 if(editMediaPreview) {
+                    editMediaPreview.addEventListener("click", (e) => {
+                        if (e.target.closest(".remove-media-preview")) {
+                            const index = parseInt(e.target.closest(".remove-media-preview").dataset.index);
+                            const removedItem = editSelectedFiles[index];
+                            editSelectedFiles.splice(index, 1); // Remove from the global array
+                            renderMediaPreviews(editSelectedFiles, editMediaPreview, editErrorMessage); // Re-render previews
+
+                             // Show removal toast
+                             document.querySelector("#mediaToast .toast-body").textContent = `${typeof removedItem === "string" ? "Media" : removedItem.name} removed`;
+                             document.querySelector("#mediaToast .toast-header").classList.remove("bg-success", "bg-danger", "text-white");
+                             mediaToast.show();
+                        }
+                    });
+                 }
+
+
+              } catch (error) {
+                console.error("Error fetching post for editing:", error);
+                document.querySelector("#mediaToast .toast-body").textContent = `Failed to load post for editing: ${error.message}`;
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                mediaToast.show();
+                 // Restore visibility if fetching fails
+                 if (postContentElement) postContentElement.style.display = 'block';
+                 const postActions = postCard.querySelector(".card-footer .post-actions");
+                 if (postActions) postActions.style.display = 'flex';
+              }
+            return;
+          }
+
+          if (e.target.classList.contains('delete-comment-btn')) {
+            const commentElement = e.target.closest('[data-comment-id]');
+            const commentId = commentElement.dataset.commentId;
+            const postElement = e.target.closest('[data-post-id]');
+            const postId = postElement.dataset.postId;
+
+            // Get the post author ID (not the comment author ID)
+            const postAuthorId = postElement.querySelector('.post-profile-pic').dataset.userId;
+
+            if (confirm("Are you sure you want to delete this comment?")) {
+              try {
+                await db
+                  .collection("users")
+                  .doc(postAuthorId)  // Use post author ID
+                  .collection("posts")
+                  .doc(postId)
+                  .collection("comments")
+                  .doc(commentId)  // This is the comment document ID
+                  .delete();
+
+                console.log("Comment deleted successfully:", commentId);
+
+                // Remove the comment from the DOM
+                commentElement.remove();
+
+              } catch (error) {
+                console.error("Failed to delete comment:", error);
+                alert("Failed to delete comment: " + error.message);
+              }
+            }
+          }
+
+          if (deleteCommentBtn) {
+              const commentElement = e.target.closest('[data-comment-id]');
+              const commentId = commentElement.dataset.commentId;
+              const postElement = e.target.closest('[data-post-id]');
+              const postId = postElement.dataset.postId;
+
+              // Get the post author ID (not the comment author ID)
+              const postAuthorId = postElement.querySelector('.post-profile-pic').dataset.userId;
+            if (!commentId || !postId || !postAuthorId) {
+              console.warn('Cannot delete comment — missing required IDs', { commentId, postId, postAuthorId }); // CHANGED
+              return;
+            }
+
+            if (confirm("Are you sure you want to delete this comment?")) { // CHANGED
+              try {
+                // Delete the comment document
+                await db.collection("users")
+                  .doc(postAuthorId)
+                  .collection("posts")
+                  .doc(postId)
+                  .collection("comments")
+                  .doc(commentId)
+                  .delete(); // CHANGED
+
+                // CHANGED: Atomic decrement of comment count in post document (if field exists)
+                const postRef = db.collection("users").doc(postAuthorId).collection("posts").doc(postId);
+                const postSnap = await postRef.get();
+                const postData = postSnap.data() || {};
+
+                const possibleCountFields = ["comment_count", "commentsCount", "comments_count", "commentCount"];
+                let countField = null;
+
+                for (const field of possibleCountFields) {
+                  if (typeof postData[field] === 'number') {
+                    countField = field;
+                    break;
+                  }
+                }
+
+                if (countField) {
+                  await postRef.update({
+                    [countField]: firebase.firestore.FieldValue.increment(-1) // CHANGED
+                  });
+                }
+
+                // CHANGED: Remove comment from DOM
+                const commentEl = document.querySelector(`[data-comment-id="${commentId}"]`);
+                if (commentEl) commentEl.remove();
+
+                // CHANGED: Update visible comment count in UI
+                const postRoot = document.querySelector(`[data-post-id="${postId}"]`);
+                if (postRoot) {
+                  const countEl = postRoot.querySelector('[data-comment-count], .comment-count, .badge[data-type="comments"]');
+                  if (countEl) {
+                    let current = parseInt(countEl.textContent.trim(), 10) || 0;
+                    const next = Math.max(0, current - 1);
+                    countEl.textContent = next;
+
+                    if (countEl.hasAttribute('aria-label')) {
+                      const label = countEl.getAttribute('aria-label');
+                      const newLabel = label.replace(/\d+/, next);
+                      countEl.setAttribute('aria-label', newLabel);
+                    }
+                  }
+                }
+
+                console.log("Comment deleted:", commentId); // CHANGED
+
+                document.querySelector("#mediaToast .toast-body").textContent = "Comment deleted successfully"; // CHANGED
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white"); // CHANGED
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white"); // CHANGED
+                mediaToast.show(); // CHANGED
+              } catch (e) {
+                console.error("Error deleting comment:", e); // CHANGED
+                document.querySelector("#mediaToast .toast-body").textContent = `Failed to delete comment: ${e.message}`; // CHANGED
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white"); // CHANGED
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-success"); // CHANGED
+                mediaToast.show(); // CHANGED
+              }
+            }
+            return;
+          }
+
+          if (deleteBtn) {
+            const postId = deleteBtn.dataset.postId;
+            // Determine the author of the post to correctly reference their posts collection
+            const postCard = deleteBtn.closest(".card");
+            const postAuthorId = postCard.querySelector(".post-profile-pic").dataset.userId;
+
+            if (confirm("Are you sure you want to delete this post?")) {
+              try {
+                 // Optional: Delete associated media from storage
+                 const postDoc = await db.collection("users").doc(postAuthorId).collection("posts").doc(postId).get();
+                 const postData = postDoc.data();
+                 if(postData && postData.media_urls && postData.media_urls.length > 0) {
+                     await Promise.all(postData.media_urls.map(async (url) => {
+                        try {
+                            const storagePath = decodeURIComponent(url.split('/o/')[1].split('?')[0]);
+                             await storage.ref(storagePath).delete();
+                             console.log("Deleted media:", storagePath);
+                        } catch (storageError) {
+                            console.warn("Failed to delete media file:", url, storageError);
+                            // Continue with post deletion even if media deletion fails
+                        }
+                     }));
+                 }
+
+                await db.collection("users")
+                  .doc(postAuthorId) // Use the post's author ID here
+                  .collection("posts")
+                  .doc(postId)
+                  .delete();
+
+                 // Remove the post element from the DOM
+                 const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+                 if (postElement) {
+                     postElement.remove();
+                 }
+
+                console.log("Post deleted:", postId);
+                 document.querySelector("#mediaToast .toast-body").textContent = "Post deleted successfully";
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                 document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                 mediaToast.show();
+              } catch (e) {
+                console.error("Error deleting post:", e);
+                document.querySelector("#mediaToast .toast-body").textContent = `Failed to delete post: ${e.message}`;
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                mediaToast.show();
+              }
+            }
+            return;
+          }
+
+          // Handle edit comment button click (Added)
+          if (editCommentBtn) {
+              const postId = editCommentBtn.dataset.postId;
+              const commentId = editCommentBtn.dataset.commentId;
+              const commentElement = editCommentBtn.closest(".comment");
+              const commentTextElement = commentElement.querySelector(".comment-text");
+              const commentActionsElement = commentElement.querySelector(".comment-actions");
+              const editCommentFormElement = commentElement.querySelector(".edit-comment-form");
+              const editCommentTextarea = editCommentFormElement.querySelector("textarea");
+
+              // Determine the author of the post to correctly reference their posts collection
+              const postCard = editCommentBtn.closest(".card");
+              const postAuthorId = postCard.querySelector(".post-profile-pic").dataset.userId;
+
+              if (commentTextElement && commentActionsElement && editCommentFormElement && editCommentTextarea) {
+                  // Hide comment text and actions
+                  commentTextElement.style.display = 'none';
+                  commentActionsElement.style.display = 'none';
+
+                  // Show edit form and populate textarea
+                  editCommentFormElement.classList.remove('d-none');
+                  editCommentTextarea.value = commentTextElement.dataset.commentContent;
+              }
+              return;
+          }
+
+           // Handle delete comment button click (Added)
+           if (deleteCommentBtn) {
+               const postId = deleteCommentBtn.dataset.postId;
+               const commentId = deleteCommentBtn.dataset.commentId;
+
+               // Determine the author of the post to correctly reference their posts collection
+               const postCard = deleteCommentBtn.closest(".card");
+               const postAuthorId = postCard.querySelector(".post-profile-pic").dataset.userId;
+
+               if (confirm("Are you sure you want to delete this comment?")) {
+                   try {
+                       await db.collection("users")
+                           .doc(postAuthorId) // Use the post's author ID here
+                           .collection("posts")
+                           .doc(postId)
+                           .collection("comments")
+                           .doc(commentId)
+                           .delete();
+
+                       // Decrement comment count on the parent post
+                       await db.collection("users")
+                           .doc(postAuthorId) // Use the post's author ID here
+                           .collection("posts")
+                           .doc(postId)
+                           .update({
+                               // Corrected to decrement by 1
+                               comment_count: firebase.firestore.FieldValue.increment(-1),
+                               updated_at: firebase.firestore.Timestamp.now()
+                           });
+
+                       // Remove the comment element from the DOM
+                       const commentElement = deleteCommentBtn.closest(".comment");
+                       if (commentElement) {
+                           commentElement.remove();
+                           // Update the comment count display on the post card
+                           const postCard = document.querySelector(`[data-post-id="${postId}"]`);
+                           const commentCountSpan = postCard.querySelector(".comment-count");
+                            if(commentCountSpan) {
+                                commentCountSpan.textContent = parseInt(commentCountSpan.textContent) - 1;
+                            }
+                       }
+
+                       console.log("Comment deleted:", commentId);
+                        document.querySelector("#mediaToast .toast-body").textContent = "Comment deleted successfully";
+                        document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                        document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                        mediaToast.show();
+                   } catch (e) {
+                       console.error("Error deleting comment:", e);
+                       document.querySelector("#mediaToast .toast-body").textContent = `Failed to delete comment: ${e.message}`;
+                       document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                       document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                       mediaToast.show();
+                   }
+               }
+               return;
+           }
+
+            // Handle save comment button click (Added)
+            if (saveCommentBtn) {
+                const commentElement = saveCommentBtn.closest(".comment");
+                const postId = commentElement.dataset.postId;
+                const commentId = commentElement.dataset.commentId;
+                const editCommentTextarea = commentElement.querySelector(".edit-comment-form textarea");
+                const updatedContent = editCommentTextarea.value.trim();
+
+                // Determine the author of the post to correctly reference their posts collection
+                const postCard = saveCommentBtn.closest(".card");
+                const postAuthorId = postCard.querySelector(".post-profile-pic").dataset.userId;
+
+                if (updatedContent) {
+                    try {
+                        await db.collection("users")
+                            .doc(postAuthorId) // Use the post's author ID here
+                            .collection("posts")
+                            .doc(postId)
+                            .collection("comments")
+                            .doc(commentId)
+                            .update({
+                                content: updatedContent,
+                                updated_at: firebase.firestore.Timestamp.now() // Optional: add updated timestamp
+                            });
+
+                        // Update the comment text element in the DOM and hide the form
+                        const commentTextElement = commentElement.querySelector(".comment-text");
+                        const commentActionsElement = commentElement.querySelector(".comment-actions");
+                        const editCommentFormElement = commentElement.querySelector(".edit-comment-form");
+
+                        commentTextElement.textContent = updatedContent;
+                        commentTextElement.dataset.commentContent = updatedContent; // Update data attribute
+                        commentTextElement.style.display = 'block';
+                        if(commentActionsElement) commentActionsElement.style.display = 'flex';
+                        editCommentFormElement.classList.add('d-none');
+
+                        console.log("Comment updated:", commentId);
+                        document.querySelector("#mediaToast .toast-body").textContent = "Comment updated successfully";
+                        document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                        document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                        mediaToast.show();
+                    } catch (e) {
+                        console.error("Error updating comment:", e);
+                        document.querySelector("#mediaToast .toast-body").textContent = `Failed to update comment: ${e.message}`;
+                        document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                        document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                        mediaToast.show();
+                    }
+                } else {
+                     document.querySelector("#mediaToast .toast-body").textContent = "Comment cannot be empty.";
+                     document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                     document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                     mediaToast.show();
+                }
+                return;
+            }
+
+            // Handle cancel comment button click (Added)
+            if (cancelCommentBtn) {
+                const commentElement = cancelCommentBtn.closest(".comment");
+                const commentTextElement = commentElement.querySelector(".comment-text");
+                const commentActionsElement = commentElement.closest(".comment").querySelector(".comment-actions"); // Corrected selector
+                const editCommentFormElement = commentElement.querySelector(".edit-comment-form");
+
+                // Hide the edit form and show the original comment text and actions
+                editCommentFormElement.classList.add('d-none');
+                commentTextElement.style.display = 'block';
+                 if(commentActionsElement) commentActionsElement.style.display = 'flex';
+
+                console.log("Comment editing cancelled.");
+                document.querySelector("#mediaToast .toast-body").textContent = "Comment editing cancelled.";
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "bg-success", "text-white");
+                mediaToast.show();
+                return;
+            }
+
+        });
+
+        // Handle edit post form submission (Added listener to postsFeed)
+        postsFeed.addEventListener("submit", async (e) => {
+            if (e.target.classList.contains("edit-form")) {
+                e.preventDefault();
+                const editForm = e.target;
+                const postId = editForm.dataset.postId;
+                const content = editForm.querySelector(".edit-post-content").value.trim();
+                const editMediaPreview = editForm.querySelector(".edit-media-preview");
+                const editErrorMessage = editForm.querySelector(".edit-error-message");
+                const postCard = document.querySelector(`[data-post-id="${postId}"]`);
+                const postContentElement = postCard.querySelector(".post-content");
+                const postActions = postCard.querySelector(".card-footer .post-actions");
+                // Retrieve original media URLs stored during edit click
+                const originalMediaUrls = JSON.parse(postCard.dataset.originalMediaUrls || '[]');
+
+                if (!content && editSelectedFiles.length === 0) {
+                    editErrorMessage.textContent = "Please add content or media to update.";
+                    editErrorMessage.classList.remove("d-none");
+                    document.querySelector("#mediaToast .toast-body").textContent = "Please add content or media";
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                    mediaToast.show();
+                    return;
+                }
+
+                try {
+                    // --- Internal helpers (file-local) ---
+                    const memoCache = new Map();
+                    const MEMO_TTL_MS = 30000; // 30 seconds
+
+                    const memoGet = async (key, loader) => {
+                        const now = Date.now();
+                        const cached = memoCache.get(key);
+                        if (cached && (now - cached.timestamp < MEMO_TTL_MS)) {
+                            return cached.value;
+                        }
+                        const value = await loader();
+                        memoCache.set(key, { value, timestamp: now });
+                        return value;
+                    };
+
+                    const withBackoff = async (fn, transientCodes = ['aborted', 'deadline-exceeded', 'resource-exhausted', 'internal', 'unavailable']) => {
+                        const baseDelay = 100;
+                        const maxRetries = 3;
+                        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                            try {
+                                return await fn();
+                            } catch (error) {
+                                if (attempt === maxRetries || !transientCodes.includes(error.code)) {
+                                    throw error;
+                                }
+                                const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 100;
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                            }
+                        }
+                    };
+
+                    const withTimeout = (promise, ms) => {
+                        return Promise.race([
+                            promise,
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Operation timed out')), ms))
+                        ]);
+                    };
+                    // --- End internal helpers ---
+
+                    // Separate existing URLs and new files from the editSelectedFiles array
+                    const existingUrls = editSelectedFiles.filter(item => typeof item === "string");
+                    const newFiles = editSelectedFiles.filter(item => typeof item !== "string");
+
+                    // Upload new media to Storage
+                    const newMediaUrls = [];
+                    if (newFiles.length > 0) {
+                        // Limit concurrency to avoid overwhelming the client/network
+                        const CONCURRENT_UPLOAD_LIMIT = 3;
+                        const uploadPromises = [];
+                        for (let i = 0; i < newFiles.length; i += CONCURRENT_UPLOAD_LIMIT) {
+                            const chunk = newFiles.slice(i, i + CONCURRENT_UPLOAD_LIMIT);
+                            const chunkPromises = chunk.map(async (file, index) => {
+                                try {
+                                    // Basic validation before upload
+                                    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+                                        throw new Error(`Invalid file type for ${file.name}`);
+                                    }
+                                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                                        throw new Error(`File ${file.name} exceeds 10MB limit`);
+                                    }
+                                    const extension = file.name.split('.').pop();
+                                    const storagePath = `post_media/${currentUser.uid}/${postId}/${Date.now()}_new_${i + index}.${extension}`;
+                                    const storageRef = storage.ref(storagePath);
+                                    const snapshot = await withTimeout(storageRef.put(file), 120000); // 2 min timeout
+                                    const downloadURL = await snapshot.ref.getDownloadURL();
+                                    return downloadURL;
+                                } catch (error) {
+                                    console.error(`Error uploading new file ${file.name}:`, {
+                                        message: error.message,
+                                        code: error.code
+                                    });
+                                    document.querySelector("#mediaToast .toast-body").textContent = `Failed to upload new file: ${file.name}`;
+                                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                                    mediaToast.show();
+                                    throw error;
+                                }
+                            });
+                            uploadPromises.push(Promise.allSettled(chunkPromises));
+                        }
+
+                        // Wait for all chunks to complete
+                        const allChunksResults = await Promise.all(uploadPromises);
+                        // Flatten results and collect successful URLs
+                        for (const chunkResults of allChunksResults) {
+                            newMediaUrls.push(...chunkResults
+                                .filter(result => result.status === 'fulfilled')
+                                .map(result => result.value));
+                        }
+
+                        const failedUploads = allChunksResults.flat().filter(result => result.status === 'rejected');
+                        if (failedUploads.length > 0) {
+                            console.warn(`${failedUploads.length} new file(s) failed to upload during edit.`);
+                        }
+                    }
+
+                    // Combine existing and new media URLs
+                    const allMediaUrls = [...existingUrls, ...newMediaUrls];
+
+                    // Update post document in Firestore using a batch
+                    const batch = db.batch();
+                    const postRef = db.collection("users")
+                        .doc(currentUser.uid)
+                        .collection("posts")
+                        .doc(postId);
+                    batch.update(postRef, {
+                        content: content,
+                        media_urls: allMediaUrls,
+                        updated_at: firebase.firestore.FieldValue.serverTimestamp(),
+                        version: firebase.firestore.FieldValue.increment(1) // For optimistic concurrency if needed
+                    });
+
+                    await withBackoff(() => withTimeout(batch.commit(), 30000)); // 30s timeout for batch commit
+
+                    // Delete old media from storage that are no longer in editSelectedFiles
+                    const removedUrls = originalMediaUrls.filter(url => !existingUrls.includes(url));
+                    // Batch delete old media files concurrently
+                    await Promise.all(removedUrls.map(async (url) => {
+                        try {
+                            const storagePath = decodeURIComponent(url.split('/o/')[1].split('?')[0]);
+                            await withTimeout(storage.ref(storagePath).delete(), 30000); // 30s timeout
+                            console.log("Deleted old media during edit:", storagePath);
+                        } catch (storageError) {
+                            console.warn("Failed to delete old media file during edit:", {
+                                url,
+                                message: storageError.message,
+                                code: storageError.code
+                            });
+                        }
+                    }));
+
+                    // Update the UI immediately with new content and media
+                    if (postContentElement) {
+                        postContentElement.textContent = content;
+                        postContentElement.dataset.content = content;
+                        postContentElement.classList.remove("d-none");
+                    }
+                    if (postActions) postActions.classList.remove("d-none");
+                    editForm.remove(); // Remove the edit form immediately
+
+                    // Update media display for the post
+                    const postBody = postCard.querySelector(".card-body");
+                    if (postBody) {
+                        postBody.classList.remove("d-none");
+                        const existingCarousel = postBody.querySelector(".carousel");
+                        if (existingCarousel) existingCarousel.remove();
+                        if (allMediaUrls.length > 0) {
+                            const newCarouselId = `carousel${postId}`;
+                            const newMediaHtml = `
+                                <div id="${newCarouselId}" class="carousel slide mt-3" data-bs-ride="carousel">
+                                    <div class="carousel-inner rounded">
+                                        ${allMediaUrls
+                                            .map(
+                                                (url, index) => `
+                                                <div class="carousel-item ${index === 0 ? "active" : ""}">
+                                                    <img src="${url}" class="d-block w-100 img-fluid" alt="Media ${index + 1}"
+                                                         onerror="this.src='https://placehold.co/600x400';"
+                                                         loading="lazy">
+                                                </div>
+                                            `
+                                            ).join("")}
+                                    </div>
+                                    ${
+                                        allMediaUrls.length > 1
+                                            ? `
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#${newCarouselId}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#${newCarouselId}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    `
+                                            : ""
+                                    }
+                                </div>
+                            `;
+                            postContentElement.insertAdjacentHTML('afterend', newMediaHtml);
+                            const newCarouselElement = postCard.querySelector(`#${newCarouselId}`);
+                            if (newCarouselElement) {
+                                new bootstrap.Carousel(newCarouselElement, {
+                                    ride: 'carousel',
+                                    interval: 5000,
+                                    pause: 'hover'
+                                });
+                            }
+                        }
+                    }
+
+                    // Clear stored original data and global editSelectedFiles
+                    delete postCard.dataset.originalContent;
+                    delete postCard.dataset.originalMediaUrls;
+                    editSelectedFiles = [];
+
+                    console.log("Post updated successfully.");
+                    document.querySelector("#mediaToast .toast-body").textContent = "Post updated successfully";
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                    mediaToast.show();
+                } catch (error) {
+                    console.error("Error updating post:", {
+                        message: error.message,
+                        code: error.code
+                    });
+                    editErrorMessage.textContent = `Failed to update post: ${error.message || "Unknown error"}`;
+                    editErrorMessage.classList.remove("d-none");
+                    document.querySelector("#mediaToast .toast-body").textContent = `Failed to update post: ${error.message || "Unknown error"}`;
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                    mediaToast.show();
+                }
+            }
+        });
+
+        // Handle cancel post edit button click (Added listener to postsFeed)
+         postsFeed.addEventListener("click", (e) => {
+             if (e.target.classList.contains("cancel-post-btn")) {
+                 const cancelBtn = e.target;
+                 const editForm = cancelBtn.closest(".edit-form");
+                 if (editForm) {
+                     const postCard = cancelBtn.closest(".card");
+                     const postContentElement = postCard.querySelector(".post-content");
+                     const postActions = postCard.querySelector(".card-footer .post-actions");
+                      const existingCarousel = postCard.querySelector(".carousel");
+
+
+                     // Restore original content and media
+                     const originalContent = postCard.dataset.originalContent || '';
+                     const originalMediaUrls = JSON.parse(postCard.dataset.originalMediaUrls || '[]');
+
+
+                     // Remove the edit form
+                     editForm.remove();
+
+                     // Restore original content text
+                     if (postContentElement) {
+                          postContentElement.textContent = originalContent;
+                          postContentElement.dataset.content = originalContent;
+                          postContentElement.style.display = 'block';
+                     }
+
+                     // Restore post actions visibility
+                     if (postActions) postActions.style.display = 'flex';
+
+                     // Remove any media previews from the cancelled edit
+                     const editMediaPreviewContainer = postCard.querySelector(".edit-media-preview");
+                      if(editMediaPreviewContainer) {
+                          editMediaPreviewContainer.innerHTML = ''; // Clear previews
+                          editMediaPreviewContainer.classList.add('d-none'); // Hide container
+                      }
+
+                     // Restore the original media display (if any)
+                     if (existingCarousel) existingCarousel.remove(); // Remove the old carousel if it was there before editing
+                     if (originalMediaUrls.length > 0) {
+                         const newCarouselId = `carousel${postCard.dataset.postId}`;
+                          const originalMediaHtml = `
+                             <div id="${newCarouselId}" class="carousel slide mt-3">
+                               <div class="carousel-inner rounded">
+                                 ${originalMediaUrls
+                                     .map(
+                                         (url, index) => `
+                                         <div class="carousel-item ${index === 0 ? "active" : ""}">
+                                             <img src="${url}" class="d-block w-100" alt="Media ${
+                                             index + 1
+                                         }" onerror="this.src='https://placehold.co/600x400';">
+                                         </div>
+                                     `
+                                     )
+                                     .join("")}
+                               </div>
+                               ${
+                                     originalMediaUrls.length > 1
+                                         ? `
+                                     <button class="carousel-control-prev" type="button" data-bs-target="#${newCarouselId}" data-bs-slide="prev">
+                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                         <span class="visually-hidden">Previous</span>
+                                     </button>
+                                     <button class="carousel-control-next" type="button" data-bs-target="#${newCarouselId}" data-bs-slide="next">
+                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                         <span class="visually-hidden">Next</span>
+                                     </button>
+                                 `
+                                         : ""
+                                 }
+                             </div>
+                           `;
+                            if(postContentElement) {
+                                postContentElement.insertAdjacentHTML('afterend', originalMediaHtml);
+                                // Re-initialize bootstrap carousel if needed
+                                const newCarouselElement = postCard.querySelector(`#${newCarouselId}`);
+                                if (newCarouselElement) {
+                                    new bootstrap.Carousel(newCarouselElement);
+                                }
+                            }
+                     }
+
+                      // Clear the stored original data
+                     delete postCard.dataset.originalContent;
+                     delete postCard.dataset.originalMediaUrls;
+
+                     // Clear the global editSelectedFiles when cancelling
+                     editSelectedFiles = [];
+
+                     console.log("Post editing cancelled.");
+                     document.querySelector("#mediaToast .toast-body").textContent = "Comment editing cancelled.";
+                     document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "bg-success", "text-white");
+                     mediaToast.show();
+                 }
+             }
+         });
+
+
+        // Handle comment submission (existing logic)
+        postsFeed.addEventListener("submit", (e) => {
+          if (e.target.classList.contains("add-comment-form")) {
+            e.preventDefault();
+            const postId = e.target.dataset.postId;
+            const commentInput = e.target.querySelector("input");
+            const commentText = commentInput.value.trim();
+
+            // Determine the author of the post to correctly reference their posts collection
+            const postCard = e.target.closest(".card");
+            const postAuthorId = postCard.querySelector(".post-profile-pic").dataset.userId;
+
+            if (commentText) {
+              db.collection("users")
+                .doc(postAuthorId) // Use the post's author ID here
+                .collection("posts")
+                .doc(postId)
+                .collection("comments")
+                .add({
+                  author_id: currentUser.uid,
+                  author_ref: db.collection("users").doc(currentUser.uid),
+                  content: commentText,
+                  created_at: firebase.firestore.Timestamp.now()
+                })
+                .then(() => {
+                  // Increment comment_count in parent post
+                  db.collection("users")
+                    .doc(postAuthorId) // Use the post's author ID here
+                    .collection("posts")
+                    .doc(postId)
+                    .update({
+                      comment_count: firebase.firestore.FieldValue.increment(1),
+                      updated_at: firebase.firestore.Timestamp.now() // Optional: update parent post timestamp
+                    });
+                  e.target.reset(); // Clear the input field
+                    // The loadComments snapshot listener will automatically update the list
+                })
+                .catch((e) => {
+                    console.error("Error adding comment:", e);
+                    document.querySelector("#mediaToast .toast-body").textContent = `Failed to add comment: ${e.message}`;
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                    mediaToast.show();
+                });
+            } else {
+                 document.querySelector("#mediaToast .toast-body").textContent = "Comment cannot be empty.";
+                 document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                 mediaToast.show();
+            }
+          }
+        });
+
+
+        // Contact modal
+        contactModal.addEventListener("show.bs.modal", (event) => {
+          const userId = event.relatedTarget.dataset.userId;
+          const user = users[userId] || {};
+          contactDetails.innerHTML = user.name
+            ? `
+            <div class="d-flex align-items-center mb-3">
+              <img src="${user.photo}" alt="${user.name}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+              <h6 class="mb-0">${user.name}</h6>
+            </div>
+            <div class="contact-item"><i class="bi bi-envelope-fill"></i><a href="mailto:${user.email}">${user.email}</a></div>
+            <div class="contact-item"><i class="bi bi-telephone-fill"></i><a href="tel:${user.phone}">${user.phone}</a></div>
+            <div class="contact-item"><i class="bi bi-chat-fill"></i><a href="mailto:${user.email}?subject=Message from Friend" class="btn btn-primary btn-sm btn-message">Message Me</a></div>
+          `
+            : "<p>User not found.</p>";
+
+          // Show/hide Add Friend button based on current user
+          if (userId && userId !== currentUser.uid) {
+              addFriendModalBtn.classList.remove('d-none');
+              addFriendModalBtn.dataset.targetUserId = userId; // Store the target user ID
+          } else {
+              addFriendModalBtn.classList.add('d-none');
+              addFriendModalBtn.removeAttribute('data-target-user-id');
+          }
+        });
+
+        // Add Friend button click handler in the modal
+        addFriendModalBtn.addEventListener('click', () => {
+            const targetUserId = addFriendModalBtn.dataset.targetUserId;
+            if (targetUserId) {
+                // Simulate sending a friend request
+                console.log(`Simulating friend request from ${currentUser.uid} to ${targetUserId}`);
+                showAlert(`Friend request sent to ${users[targetUserId]?.name || 'user'}!`, 'success');
+                bootstrap.Modal.getInstance(contactModal).hide(); // Close modal after sending
+            } else {
+                showAlert('Could not send friend request. User ID missing.', 'danger');
+            }
+        });
+
+
+        // Notifications
+        function renderNotifications() {
+          rtdb
+            .ref(`notifications/${currentUser.uid}`)
+            .once("value", (snapshot) => {
+              const notifications = snapshot.val() || {};
+              const unreadCount = Object.values(notifications).filter(
+                (n) => !n.read
+              ).length;
+              notificationBadge.textContent = unreadCount;
+              notificationBadge.classList.toggle("d-none", unreadCount === 0);
+              notificationsList.innerHTML = "";
+              // Display notifications in reverse chronological order
+              const sortedNotifications = Object.entries(notifications).sort(([, a], [, b]) => {
+                  const dateA = new Date(a.timestamp);
+                  const dateB = new Date(b.timestamp);
+                  return dateB - dateA; // Sort descending by timestamp
+              });
+
+              if (sortedNotifications.length === 0) {
+                   notificationsList.innerHTML = '<p class="text-muted">No notifications yet.</p>';
+              } else {
+                  sortedNotifications.forEach(([id, notification]) => {
+                      const user =
+                        users[notification.userId] || {
+                          name: "Unknown",
+                          photo: "https://placehold.co/40x40"
+                        };
+                      const notificationCard = document.createElement("div");
+                      notificationCard.className = `card mb-2 ${
+                        notification.read ? "" : "notification-unread"
+                      }`;
+                       notificationCard.innerHTML = `
+                        <div class="card-body">
+                          <div class="notification-header">
+                            <img src="${user.photo}" alt="${user.name}" class="rounded-circle notification-profile-pic" data-bs-toggle="modal" data-bs-target="#contactModal" data-user-id="${notification.userId}"/>
+                            <div class="notification-user-info">
+                              <a class="notification-user-name" href="#" data-bs-toggle="modal" data-bs-target="#contactModal" data-user-id="${notification.userId}">${user.name}</a>
+                              <p class="notification-text mb-0">${notification.text}</p>
+                              <span class="notification-timestamp">${notification.timestamp}</span>
+                            </div>
+                          </div>
+                        </div>
+                      `;
+                       // Add click listener to mark notification as read when clicked
+                       if (!notification.read) {
+                           notificationCard.addEventListener('click', () => {
+                               rtdb.ref(`notifications/${currentUser.uid}/${id}`).update({ read: true });
+                               notificationCard.classList.remove('notification-unread');
+                           });
+                       }
+
+                      notificationsList.appendChild(notificationCard);
+                  });
+              }
+            });
+        }
+
+        markAllRead.addEventListener("click", async () => {
+          try {
+              const snapshot = await rtdb.ref(`notifications/${currentUser.uid}`).once("value");
+              const updates = {};
+              snapshot.forEach((child) => {
+                if (!child.val().read) {
+                   updates[child.key + "/read"] = true;
+                }
+              });
+              if (Object.keys(updates).length > 0) {
+                 await rtdb.ref(`notifications/${currentUser.uid}`).update(updates);
+                 console.log("All notifications marked as read.");
+                 document.querySelector("#mediaToast .toast-body").textContent = "All notifications marked as read.";
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                 document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                 mediaToast.show();
+                 // renderNotifications is called by the on("value") listener
+              } else {
+                 document.querySelector("#mediaToast .toast-body").textContent = "No unread notifications to mark.";
+                 document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "bg-success", "text-white");
+                 mediaToast.show();
+              }
+          } catch (e) {
+               console.error("Error marking all notifications as read:", e);
+               document.querySelector("#mediaToast .toast-body").textContent = `Failed to mark all notifications as read: ${e.message}`;
+               document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+               document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+               mediaToast.show();
+          }
+        });
+
+        // Section toggling for Home and Notifications
+        document
+          .querySelectorAll(".navbar .nav-link[data-section]")
+          .forEach((link) => {
+            link.addEventListener("click", (e) => {
+              e.preventDefault();
+              const section = link.dataset.section;
+              document
+                .querySelectorAll(".navbar .nav-link")
+                .forEach((l) => l.classList.remove("active"));
+              link.classList.add("active");
+              document
+                .getElementById("home-section")
+                .classList.toggle("d-none", section !== "home");
+              document
+                .getElementById("notifications-section")
+                .classList.toggle("d-none", section !== "notifications");
+
+            });
+          });
+
+        // Handle activity interest buttons using event delegation
+        activityProgramme.addEventListener("click", async (e) => {
+            const interestBtn = e.target.closest(".interest-btn"); // Use closest to find the button
+
+            if (interestBtn) {
+              const activityId = interestBtn.dataset.activityId;
+              const title = interestBtn.dataset.title;
+              const isInterested = interestBtn.classList.contains("active");
+
+              try {
+                  const activityDoc = await db.collection("programs").doc(programId)
+                    .collection("activities").doc(activityId).get();
+
+                  if (!activityDoc.exists) {
+                    console.error("Activity not found for ID:", activityId);
+                    document.querySelector("#mediaToast .toast-body").textContent = "Activity not found.";
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                    mediaToast.show();
+                    return;
+                  }
+                  const activity = activityDoc.data();
+
+                  if (!activity.isSubmissionsOpen) {
+                    console.warn("Attempted to join closed activity:", activityId);
+                    document.querySelector("#mediaToast .toast-body").textContent = "Submissions are closed for this activity.";
+                    document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                    document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                    mediaToast.show();
+                    return;
+                  }
+                  const interestedRef = db.collection("programs").doc(programId)
+                    .collection("activities").doc(activityId)
+                    .collection("interestedUsers").doc(currentUser.uid);
+
+                  if (!isInterested) {
+                    // Add interest
+                    await interestedRef.set({
+                      name: currentUser.name
+                    });
+                    interestBtn.classList.add("btn-success", "active");
+                    interestBtn.classList.remove("btn-outline-success");
+                    interestBtn.textContent = "Interest Registered";
+                    interestBtn.setAttribute("aria-pressed", "true");
+                    const notificationElement = document.getElementById(`interestNotification_${activityId}`);
+                    if (notificationElement) notificationElement.classList.remove("d-none");
+
+                    await rtdb
+                      .ref(`notifications/${currentUser.uid}`)
+                      .push({
+                        userId: currentUser.uid,
+                        type: "interest",
+                        text: `You showed interest in ${title}.`,
+                        timestamp: new Date().toLocaleString(),
+                        read: false
+                      });
+                     document.querySelector("#mediaToast .toast-body").textContent = `Interest registered for ${title}.`;
+                     document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                     document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                     mediaToast.show();
+                  } else {
+                    // Remove interest
+                    await interestedRef.delete();
+                    interestBtn.classList.remove("btn-success", "active");
+                    interestBtn.classList.add("btn-outline-success");
+                    interestBtn.textContent = "Join";
+                    interestBtn.setAttribute("aria-pressed", "false");
+                    const notificationElement = document.getElementById(`interestNotification_${activityId}`);
+                    if (notificationElement) notificationElement.classList.add("d-none");
+
+                      document.querySelector("#mediaToast .toast-body").textContent = `Interest removed for ${title}.`;
+                      document.querySelector("#mediaToast .toast-header").classList.remove("bg-danger", "text-white");
+                      document.querySelector("#mediaToast .toast-header").classList.add("bg-success", "text-white");
+                      mediaToast.show();
+                  }
+              } catch (e) {
+                console.error("Error handling interest button click:", e);
+                document.querySelector("#mediaToast .toast-body").textContent = `An error occurred: ${e.message}`;
+                document.querySelector("#mediaToast .toast-header").classList.add("bg-danger", "text-white");
+                document.querySelector("#mediaToast .toast-header").classList.remove("bg-success");
+                mediaToast.show();
+              }
+            }
+          });
+
+
+        // Initialize
+        seedDefaultPosts(); // Call the seeding function
+        loadPosts();
+        loadActivities();
+        renderNotifications();
+        // Listen for new notifications in real-time
+        rtdb
+          .ref(`notifications/${currentUser.uid}`)
+          .on("value", renderNotifications);
+      });
+    </script>
+  </body>
+</html>
