@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Activities</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .navbar-brand {
+      font-weight: 600;
+    }
+    .nav-link {
+      font-weight: 500;
+    }
+    .dropdown-header, .dropdown-item {
+      font-size: 0.9rem;
+    }
+    .list-group-item {
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      background-color: #fff;
+      border: none;
+      padding: 1rem;
+    }
+    .list-group-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    }
+    .badge {
+      border-radius: 0.375rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-right: 0.25rem;
+    }
+    .btn-sm {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+    }
+    .modal-title {
+      font-weight: 600;
+    }
+    .form-label {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .form-control, .form-select {
+      font-size: 0.9rem;
+    }
+    .btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-secondary {
+      font-weight: 500;
+    }
+    #activity-form {
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      background-color: #f8f9fa;
+      box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
+    }
+    .activity-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .activity-name {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    .activity-dates {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      cursor: pointer;
+      padding: 0.75rem;
+      background-color: #fff;
+    }
+    .collapsible-body {
+      display: none;
+      padding: 0.75rem 1rem;
+      background-color: #f1f3f5;
+    }
+    .collapsible-body.show {
+      display: block;
+    }
+    .expand-arrow {
+      transition: transform 0.3s ease;
+    }
+    .expand-arrow.rotated {
+      transform: rotate(180deg);
+    }
+    .user-action-icon {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.25rem;
+    }
+    .remove-user {
+      border: none;
+      background: none;
+      font-size: 1rem;
+      color: #dc3545;
+      cursor: pointer;
+    }
+    .activity-group {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      background-color: #ffffff;
+      box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
+    }
+    .group-header {
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .group-title {
+      margin-right: 1rem;
+    }
+    .container {
+      max-width: 960px;
+    }
+    .group-title-input {
+      width: auto;
+      display: inline-block;
+      font-size: 1.25rem;
+      line-height: 1.5;
+    }
+    .is-invalid {
+      border-color: #dc3545;
+    }
+    .invalid-feedback {
+      font-size: 0.8rem;
+    }
+    .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 0.5rem;
+      border-radius: 0.375rem;
+      display: none;
+    }
+    .error-message {
+      color: #dc3545;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+    .activity-description {
+      font-size: 0.9rem;
+      color: #343a40;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="Home_Staff.html">Integrating</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarNav" aria-controls="navbarNav"
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="Edit_activities.html">Edit Activities</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home User</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><h6 class="dropdown-header">John Doe</h6></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h2 class="mb-4">Manage Activities</h2>
+    <div class="row mb-3">
+      <div class="col text-center">
+        <button class="btn btn-primary" id="add-group-button">Add New Group</button>
+      </div>
+    </div>
+    <div id="groups-container">
+      <!-- Groups will be rendered here -->
+    </div>
+  </div>
+
+    <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="activityModalLabel">Add or Edit Activity</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="activity-form" novalidate>
+              <div class="mb-3">
+                <label for="activity-group" class="form-label">Group</label>
+                <select class="form-select" id="activity-group" required>
+                  <!-- Options populated dynamically -->
+                </select>
+                <div class="invalid-feedback">Please select a group.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="activity-name" class="form-label">Activity Title</label>
+                <input type="text" class="form-control" id="activity-name" placeholder="Enter activity title" required>
+                <div class="invalid-feedback">Please enter an activity title.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="activity-description" class="form-label">Description</label>
+                <textarea class="form-control" id="activity-description" rows="4" placeholder="Enter activity description"></textarea>
+                <div class="invalid-feedback">Please enter a description.</div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="start-date" class="form-label">Start Date</label>
+                  <input type="date" class="form-control" id="start-date" required>
+                  <div class="invalid-feedback">Please select a start date.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="end-date" class="form-label">End Date</label>
+                  <input type="date" class="form-control" id="end-date" required>
+                  <div class="invalid-feedback">End date must be on or after start date.</div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="start-time" class="form-label">Start Time</label>
+                  <input type="time" class="form-control" id="start-time" required>
+                  <div class="invalid-feedback">Please select a start time.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="end-time" class="form-label">End Time</label>
+                  <input type="time" class="form-control" id="end-time" required>
+                  <div class="invalid-feedback">Please select an end time.</div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="activity-cost" class="form-label">Cost (£)</label>
+                  <input type="number" class="form-control" id="activity-cost" min="0" step="0.01" placeholder="Enter cost" required>
+                  <div class="invalid-feedback">Please enter a non-negative cost.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="activity-location" class="form-label">Location</label>
+                  <input type="text" class="form-control" id="activity-location" placeholder="Enter location" required>
+                  <div class="invalid-feedback">Please enter a location.</div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="activity-image" class="form-label">Activity Image</label>
+                <input type="file" class="form-control" id="activity-image" accept="image/jpeg,image/png,image/gif">
+                <div class="invalid-feedback">Please select a valid image (JPEG, PNG, or GIF).</div>
+                <div class="mt-2">
+                  <img id="image-preview" class="img-fluid rounded d-none" alt="Image Preview">
+                </div>
+                <div id="image-error" class="text-danger small mt-1"></div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="activity-form" class="btn btn-primary">Save Activity</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  <div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="groupModalLabel">Add or Edit Group</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="group-form">
+            <div class="mb-3">
+              <label for="group-name" class="form-label">Group Name</label>
+              <input type="text" class="form-control" id="group-name" placeholder="Enter group name" required>
+              <div class="invalid-feedback">Please enter a group name.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Group</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCn2rkxqHwd0L3Q669BEizX7Ezyz2-wZmI",
+        authDomain: "intergrating-3b2e9.firebaseapp.com",
+        projectId: "intergrating-3b2e9",
+        storageBucket: "intergrating-3b2e9.appspot.com",
+        messagingSenderId: "347420906839",
+        appId: "1:347420906839:web:cf1d9ea660df7b235e1a12",
+        measurementId: "G-WC3EB3EPZT"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const storage = firebase.storage();
+      const FieldValue = firebase.firestore.FieldValue;
+
+      const programId = 'TCNeeHc4qXeyJAsM2MqO';
+
+      const activityForm = document.getElementById('activity-form');
+      const groupForm = document.getElementById('group-form');
+      const groupsContainer = document.getElementById('groups-container');
+      const activityModalEl = document.getElementById('activityModal');
+      const groupModalEl = document.getElementById('groupModal');
+      const activityModal = new bootstrap.Modal(activityModalEl);
+      const groupModal = new bootstrap.Modal(groupModalEl);
+      const modalTitle = document.getElementById('activityModalLabel');
+      const groupModalTitle = document.getElementById('groupModalLabel');
+      const addGroupButton = document.getElementById('add-group-button');
+      const activityImageInput = document.getElementById('activity-image');
+      const imagePreview = document.getElementById('image-preview');
+      const imageError = document.getElementById('image-error');
+
+      let currentActivityId = null;
+      let currentGroupId = null;
+      let expandedActivityId = null;
+      let editingGroupId = null;
+      let selectedImage = null;
+
+      // Initialize
+      renderGroups();
+      setupEventListeners();
+
+      function setupEventListeners() {
+        activityForm.addEventListener('submit', handleActivityFormSubmit);
+        groupForm.addEventListener('submit', handleGroupFormSubmit);
+        activityModalEl.addEventListener('hidden.bs.modal', resetActivityForm);
+        groupModalEl.addEventListener('hidden.bs.modal', resetGroupForm);
+        addGroupButton.addEventListener('click', () => {
+          groupModalTitle.textContent = 'Add New Group';
+          groupModal.show();
+        });
+        groupsContainer.addEventListener('click', handleGroupsContainerClick);
+        activityImageInput.addEventListener('change', handleImageSelection);
+      }
+
+      async function handleImageSelection(event) {
+        const file = event.target.files[0];
+        imageError.style.display = 'none';
+        imagePreview.style.display = 'none';
+        selectedImage = null;
+
+        if (file) {
+          // Validate file type and size
+          const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+          const maxSize = 5 * 1024 * 1024; // 5MB
+          if (!validTypes.includes(file.type)) {
+            imageError.textContent = 'Please select a JPEG, PNG, or GIF image.';
+            imageError.style.display = 'block';
+            activityImageInput.classList.add('is-invalid');
+            return;
+          }
+          if (file.size > maxSize) {
+            imageError.textContent = 'Image size must be less than 5MB.';
+            imageError.style.display = 'block';
+            activityImageInput.classList.add('is-invalid');
+            return;
+          }
+
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            activityImageInput.classList.remove('is-invalid');
+          };
+          reader.readAsDataURL(file);
+          selectedImage = file;
+        }
+      }
+
+      async function renderGroups() {
+        groupsContainer.innerHTML = '';
+        try {
+          const groupsSnapshot = await db.collection('groups').where('programId', '==', programId).get();
+          const groups = [];
+          for (const doc of groupsSnapshot.docs) {
+            const groupData = doc.data();
+            const groupId = doc.id;
+            const activitiesSnapshot = await db.collection('programs').doc(programId).collection('activities').where('groupId', '==', groupId).get();
+            const activities = [];
+            for (const activityDoc of activitiesSnapshot.docs) {
+              const activityData = activityDoc.data();
+              const interestedUsersSnapshot = await db.collection('programs').doc(programId).collection('activities').doc(activityDoc.id).collection('interestedUsers').get();
+              const interestedUsers = interestedUsersSnapshot.docs.map(userDoc => userDoc.data().name);
+              activities.push({
+                id: activityDoc.id,
+                ...activityData,
+                availableUsers: interestedUsers
+              });
+            }
+            groups.push({
+              id: groupId,
+              name: groupData.name,
+              activities
+            });
+          }
+            // Improved Group Rendering Function - Compatible with Bootstrap v5.3
+            groups.forEach(group => {
+              const groupElement = document.createElement('div');
+              groupElement.className = 'activity-group card mb-4 shadow-sm';
+              groupElement.id = `group-${group.id}`;
+              groupElement.setAttribute('role', 'region');
+              groupElement.setAttribute('aria-labelledby', `group-title-${group.id}`);
+
+              groupElement.innerHTML = `
+                <!-- Card Header -->
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                  ${editingGroupId === group.id ? `
+                    <div class="flex-grow-1 me-2">
+                      <label for="group-title-input-${group.id}" class="visually-hidden">Group Name</label>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm w-100 group-title-input"
+                        id="group-title-input-${group.id}"
+                        value="${group.name}"
+                        placeholder="Enter group name"
+                        aria-label="Edit group name for ${group.name}"
+                        aria-describedby="group-error-${group.id}"
+                      >
+                      <small id="group-error-${group.id}" class="error-message d-none">Please enter a group name.</small>
+                    </div>
+                  ` : `
+                    <h3 class="h5 mb-0 group-title text-truncate" id="group-title-${group.id}" title="${group.name}">
+                      ${group.name}
+                      <span class="badge bg-info ms-2">${(group.activities || []).length} Activities</span>
+                    </h3>
+                  `}
+
+                  <!-- Group Action Buttons -->
+                  <div class="btn-group btn-group-sm flex-wrap" role="group" aria-label="Group actions for ${group.name}">
+                    ${editingGroupId === group.id ? `
+                      <button
+                        type="button"
+                        class="btn btn-primary save-group-inline-btn"
+                        data-group-id="${group.id}"
+                        aria-label="Save group name for ${group.name}"
+                        aria-controls="group-title-input-${group.id}"
+                      >
+                        <i class="bi bi-check-circle" aria-hidden="true"></i> Save
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-secondary cancel-group-inline-btn"
+                        data-group-id="${group.id}"
+                        aria-label="Cancel editing group name for ${group.name}"
+                        aria-controls="group-title-input-${group.id}"
+                      >
+                        <i class="bi bi-x-circle" aria-hidden="true"></i> Cancel
+                      </button>
+                    ` : `
+                      <button
+                        type="button"
+                        class="btn btn-warning edit-group-inline-btn"
+                        data-group-id="${group.id}"
+                        aria-label="Edit group name ${group.name} inline"
+                      >
+                        <i class="bi bi-pencil-square" aria-hidden="true"></i> Edit Inline
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-warning edit-group-btn"
+                        data-group-id="${group.id}"
+                        aria-label="Edit group name ${group.name} via modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#groupModal"
+                      >
+                        <i class="bi bi-pencil" aria-hidden="true"></i> Edit (Modal)
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-danger delete-group-btn"
+                        data-group-id="${group.id}"
+                        aria-label="Delete group ${group.name}"
+                      >
+                        <i class="bi bi-trash" aria-hidden="true"></i> Delete
+                      </button>
+                    `}
+                  </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                  <div class="row mb-3">
+                    <div class="col text-center">
+                      <button
+                        type="button"
+                        class="btn btn-success add-activity-btn"
+                        data-group-id="${group.id}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#activityModal"
+                        aria-label="Add new activity to group ${group.name}"
+                      >
+                        <i class="bi bi-plus-circle" aria-hidden="true"></i> Add New Activity
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="activities-list list-group"
+                    id="activities-list-${group.id}"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  ></div>
+                </div>
+              `;
+
+              groupsContainer.appendChild(groupElement);
+              renderActivities(group.id, group.activities || []);
+
+              // Initialize tooltips for buttons (defensive check for Bootstrap v5.3)
+              if (typeof bootstrap !== 'undefined') {
+                const tooltipTriggerList = [].slice.call(
+                  groupElement.querySelectorAll('[data-bs-toggle="tooltip"]')
+                );
+                tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+              }
+
+              // Ensure keyboard focus for interactive elements only
+              groupElement.querySelectorAll('.btn, .group-title-input').forEach(el => {
+                el.setAttribute('tabindex', '0');
+              });
+            });
+
+
+
+          updateGroupSelect(groups);
+        } catch (error) {
+          console.error('Error fetching groups:', error);
+          alert('Failed to load groups.');
+        }
+      }
+
+      function renderActivities(groupId, activities) {
+        const activitiesList = document.getElementById(`activities-list-${groupId}`);
+        activitiesList.innerHTML = '';
+        activities.forEach(activity => addActivityToList(groupId, activity));
+      }
+
+      function updateGroupSelect(groups) {
+        const groupSelect = document.getElementById('activity-group');
+        groupSelect.innerHTML = groups.length
+          ? groups.map(group => `<option value="${group.id}">${group.name}</option>`).join('')
+          : '<option value="">No groups available</option>';
+      }
+
+      function addActivityToList(groupId, activity) {
+        const activitiesList = document.getElementById(`activities-list-${groupId}`);
+        const submissionText = activity.isSubmissionsOpen ? 'Submissions Open' : 'Submissions Closed';
+        const submissionClass = `bg-${activity.isSubmissionsOpen ? 'success' : 'danger'}`;
+        const activityItem = document.createElement('div');
+        activityItem.className = 'list-group-item';
+        activityItem.id = `activity-${activity.id}`;
+        const datesText = `Dates: ${activity.startDate} - ${activity.endDate} | ${activity.startTime} to ${activity.endTime}`;
+        let userRows = activity.availableUsers && Array.isArray(activity.availableUsers) && activity.availableUsers.length ? `
+          <div class="mt-3 w-100">
+            <h6 class="mb-2">Available Users:</h6>
+            <div class="list-group">
+              ${[...new Set(activity.availableUsers)].map(user => `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>${user}</span>
+                  <div>
+                    <button class="btn btn-success btn-sm me-2 confirm-btn" data-activity-id="${activity.id}" data-user="${user}" data-list-type="confirmed">Confirm</button>
+                    <button class="btn btn-danger btn-sm reserve-btn" data-activity-id="${activity.id}" data-user="${user}" data-list-type="reserved">Reserve</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : `<div class="mt-3 w-100"><p class="text-muted">No users have expressed interest.</p></div>`;
+        const imageHtml = activity.imageUrl ? `
+          <div class="mt-3">
+            <img src="${activity.imageUrl}" alt="${activity.name}" class="img-fluid rounded" style="max-width: 100%; max-height: 200px;" onerror="this.src='https://placehold.co/600x400';">
+          </div>
+        ` : '';
+        const descriptionHtml = activity.description ? `
+          <div class="activity-description">${activity.description}</div>
+        ` : '';
+        activityItem.innerHTML = `
+          <div class="collapsible-header" data-activity-id="${activity.id}">
+            <div class="activity-details">
+              <span class="activity-name">${activity.name}</span>
+              <div class="activity-dates"><small>${datesText}</small></div>
+              <div>
+                <span class="badge ${submissionClass}">${submissionText}</span>
+                <span class="badge bg-info">Cost: £${activity.cost}</span>
+                <span class="badge bg-primary">Location: ${activity.location}</span>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-success open-submissions-btn" data-activity-id="${activity.id}" ${activity.isSubmissionsOpen ? 'disabled' : ''}>Open Submissions</button>
+              <button class="btn btn-sm btn-danger close-submissions-btn" data-activity-id="${activity.id}" ${!activity.isSubmissionsOpen ? 'disabled' : ''}>Close Submissions</button>
+              <button class="btn btn-sm btn-warning edit-btn" data-activity-id="${activity.id}">Edit</button>
+              <button class="btn btn-sm btn-danger delete-btn" data-activity-id="${activity.id}">Delete</button>
+              <i class="bi bi-caret-up-fill expand-arrow"></i>
+            </div>
+          </div>
+          <div class="collapsible-body" id="activity-body-${activity.id}">
+            ${imageHtml}
+            ${descriptionHtml}
+            <div class="mt-3 w-100">
+              <h6>Confirmed Users:</h6>
+              <ul id="confirmed-users-${activity.id}" class="confirmed-users-list list-group">
+                ${activity.confirmedUsers && activity.confirmedUsers.length ? Array.from(new Set(activity.confirmedUsers)).map(user => `
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${user}</span>
+                    <button class="remove-user" data-activity-id="${activity.id}" data-user="${user}" data-list-type="confirmed">×</button>
+                  </li>
+                `).join('') : '<li class="list-group-item">No confirmed users</li>'}
+              </ul>
+            </div>
+            <div class="mt-2 w-100">
+              <h6>Reserve List:</h6>
+              <ul id="reserve-list-${activity.id}" class="reserve-list list-group">
+                ${activity.reservedUsers && activity.reservedUsers.length ? Array.from(new Set(activity.reservedUsers)).map(user => `
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${user}</span>
+                    <button class="remove-user" data-activity-id="${activity.id}" data-user="${user}" data-list-type="reserved">×</button>
+                  </li>
+                `).join('') : '<li class="list-group-item">No reserved users</li>'}
+              </ul>
+            </div>
+            <div class="user-response-section mt-2">
+              <h6>User Response:</h6>
+              ${userRows}
+            </div>
+          </div>
+        `;
+        activitiesList.appendChild(activityItem);
+      }
+
+      function validateActivityForm() {
+        const form = document.getElementById('activity-form');
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const cost = document.getElementById('activity-cost').value;
+
+        let isValid = true;
+
+        form.querySelectorAll('.form-control, .form-select').forEach(input => {
+          input.classList.remove('is-invalid');
+        });
+
+        if (!document.getElementById('activity-group').value) {
+          document.getElementById('activity-group').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (!document.getElementById('activity-name').value.trim()) {
+          document.getElementById('activity-name').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (!startDate) {
+          document.getElementById('start-date').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (!endDate) {
+          document.getElementById('end-date').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (!document.getElementById('start-time').value) {
+          document.getElementById('start-time').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (!document.getElementById('end-time').value) {
+          document.getElementById('end-time').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (cost === '') {
+          document.getElementById('activity-cost').classList.add('is-invalid');
+          isValid = false;
+        }
+        if (!document.getElementById('activity-location').value.trim()) {
+          document.getElementById('activity-location').classList.add('is-invalid');
+          isValid = false;
+        }
+
+        if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+          document.getElementById('end-date').classList.add('is-invalid');
+          isValid = false;
+        }
+
+        if (cost && parseFloat(cost) < 0) {
+          document.getElementById('activity-cost').classList.add('is-invalid');
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      async function handleActivityFormSubmit(event) {
+        event.preventDefault();
+
+        if (!validateActivityForm()) return;
+
+        const groupId = document.getElementById('activity-group').value;
+        const activityName = document.getElementById('activity-name').value.trim();
+        const description = document.getElementById('activity-description').value.trim();
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const startTime = document.getElementById('start-time').value;
+        const endTime = document.getElementById('end-time').value;
+        const activityCost = parseFloat(document.getElementById('activity-cost').value);
+        const activityLocation = document.getElementById('activity-location').value.trim();
+        let imageUrl = null;
+
+        try {
+          // Handle image upload if selected
+          if (selectedImage) {
+            const storagePath = `activity_images/${programId}/${currentActivityId || Date.now()}/${Date.now()}_${selectedImage.name}`;
+            const storageRef = storage.ref(storagePath);
+            const snapshot = await storageRef.put(selectedImage);
+            imageUrl = await snapshot.ref.getDownloadURL();
+          }
+
+          // Update or create activity
+          const activityData = {
+            name: activityName,
+            description: description || null, // Store null if empty
+            cost: activityCost,
+            location: activityLocation,
+            startDate: startDate,
+            endDate: endDate,
+            startTime: startTime,
+            endTime: endTime,
+            groupId: groupId
+          };
+          if (imageUrl) {
+            activityData.imageUrl = imageUrl;
+          }
+
+          if (currentActivityId) {
+            await db.collection('programs').doc(programId).collection('activities').doc(currentActivityId).update(activityData);
+          } else {
+            activityData.isSubmissionsOpen = true;
+            activityData.confirmedUsers = [];
+            activityData.reservedUsers = [];
+            await db.collection('programs').doc(programId).collection('activities').add(activityData);
+          }
+          activityModal.hide();
+          resetActivityForm();
+          await renderGroups();
+        } catch (error) {
+          console.error('Error saving activity:', error);
+          alert(`Failed to save activity: ${error.message}`);
+        }
+      }
+
+      async function handleGroupFormSubmit(event) {
+        event.preventDefault();
+        const groupName = document.getElementById('group-name').value.trim();
+        if (!groupName) {
+          document.getElementById('group-name').classList.add('is-invalid');
+          return;
+        }
+
+        try {
+          if (currentGroupId) {
+            await db.collection('groups').doc(currentGroupId).update({
+              name: groupName
+            });
+          } else {
+            await db.collection('groups').add({
+              name: groupName,
+              programId: programId
+            });
+          }
+          groupModal.hide();
+          resetGroupForm();
+          await renderGroups();
+        } catch (error) {
+          console.error('Error saving group:', error);
+          alert('Failed to save group.');
+        }
+      }
+
+      function resetActivityForm() {
+        currentActivityId = null;
+        selectedImage = null;
+        const form = document.getElementById('activity-form');
+        form.querySelectorAll('.form-control, .form-select').forEach(input => {
+          input.classList.remove('is-invalid');
+          input.disabled = false;
+        });
+        document.getElementById('activity-group').value = '';
+        document.getElementById('activity-name').value = '';
+        document.getElementById('activity-description').value = '';
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('start-time').value = '';
+        document.getElementById('end-time').value = '';
+        document.getElementById('activity-cost').value = '';
+        document.getElementById('activity-location').value = '';
+        document.getElementById('activity-image').value = '';
+        imagePreview.src = '';
+        imagePreview.style.display = 'none';
+        imageError.style.display = 'none';
+        modalTitle.textContent = 'Add New Activity';
+      }
+
+      function resetGroupForm() {
+        currentGroupId = null;
+        document.getElementById('group-name').value = '';
+        document.getElementById('group-name').classList.remove('is-invalid');
+        groupModalTitle.textContent = 'Add New Group';
+      }
+
+      function handleGroupsContainerClick(event) {
+        const target = event.target;
+        if (target.classList.contains('edit-btn')) {
+          const activityId = target.dataset.activityId;
+          editActivity(activityId);
+        } else if (target.classList.contains('delete-btn')) {
+          const activityId = target.dataset.activityId;
+          deleteActivity(activityId);
+        } else if (target.classList.contains('edit-group-btn')) {
+          const groupId = target.dataset.groupId;
+          editGroup(groupId);
+        } else if (target.classList.contains('edit-group-inline-btn')) {
+          const groupId = target.dataset.groupId;
+          startInlineEdit(groupId);
+        } else if (target.classList.contains('save-group-inline-btn')) {
+          const groupId = target.dataset.groupId;
+          saveInlineEdit(groupId);
+        } else if (target.classList.contains('cancel-group-inline-btn')) {
+          const groupId = target.dataset.groupId;
+          cancelInlineEdit(groupId);
+        } else if (target.classList.contains('delete-group-btn')) {
+          const groupId = target.dataset.groupId;
+          deleteGroup(groupId);
+        } else if (target.classList.contains('add-activity-btn')) {
+          modalTitle.textContent = 'Add New Activity';
+          document.getElementById('activity-group').value = target.dataset.groupId;
+          activityModal.show();
+        } else if (target.classList.contains('remove-user')) {
+          const activityId = target.dataset.activityId;
+          const userName = target.dataset.user;
+          const listType = target.dataset.listType;
+          removeUserFromList(activityId, userName, listType);
+        } else if (target.classList.contains('confirm-btn') || target.classList.contains('reserve-btn')) {
+          const activityId = target.dataset.activityId;
+          const userName = target.dataset.user;
+          const listType = target.dataset.listType;
+          handleUserResponse(activityId, userName, listType);
+        } else if (target.classList.contains('open-submissions-btn')) {
+          const activityId = target.dataset.activityId;
+          toggleSubmissions(activityId, true);
+        } else if (target.classList.contains('close-submissions-btn')) {
+          const activityId = target.dataset.activityId;
+          toggleSubmissions(activityId, false);
+        } else if (target.closest('.collapsible-header')) {
+          const header = target.closest('.collapsible-header');
+          const activityId = header.dataset.activityId;
+          toggleActivity(activityId);
+        }
+      }
+
+      async function startInlineEdit(groupId) {
+        editingGroupId = groupId;
+        await renderGroups();
+        const input = document.getElementById(`group-title-input-${groupId}`);
+        input.focus();
+        input.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter') await saveInlineEdit(groupId);
+          else if (event.key === 'Escape') await cancelInlineEdit(groupId);
+        });
+      }
+
+      async function saveInlineEdit(groupId) {
+        const input = document.getElementById(`group-title-input-${groupId}`);
+        const newName = input.value.trim();
+        if (newName) {
+          try {
+            await db.collection('groups').doc(groupId).update({ name: newName });
+            editingGroupId = null;
+            await renderGroups();
+          } catch (error) {
+            console.error('Error updating group name:', error);
+            alert('Failed to update group name.');
+          }
+        } else {
+          alert('Group name cannot be empty.');
+          editingGroupId = null;
+          await renderGroups();
+        }
+      }
+
+      async function cancelInlineEdit(groupId) {
+        editingGroupId = null;
+        await renderGroups();
+      }
+
+      function toggleActivity(activityId) {
+        const activityBody = document.getElementById(`activity-body-${activityId}`);
+        const expandArrow = document.querySelector(`[data-activity-id="${activityId}"] .expand-arrow`);
+        if (activityBody && expandArrow) {
+          if (expandedActivityId === activityId) {
+            activityBody.classList.remove('show');
+            expandArrow.classList.remove('rotated');
+            expandedActivityId = null;
+          } else {
+            if (expandedActivityId !== null) {
+              const previousBody = document.getElementById(`activity-body-${expandedActivityId}`);
+              const previousArrow = document.querySelector(`[data-activity-id="${expandedActivityId}"] .expand-arrow`);
+              if (previousBody && previousArrow) {
+                previousBody.classList.remove('show');
+                previousArrow.classList.remove('rotated');
+              }
+            }
+            activityBody.classList.add('show');
+            expandArrow.classList.add('rotated');
+            expandedActivityId = activityId;
+          }
+        }
+      }
+
+      async function editActivity(activityId) {
+        try {
+          const activityDoc = await db.collection('programs').doc(programId).collection('activities').doc(activityId).get();
+          if (!activityDoc.exists) {
+            alert('Activity not found.');
+            return;
+          }
+          const activity = activityDoc.data();
+          document.getElementById('activity-group').value = activity.groupId;
+          document.getElementById('activity-name').value = activity.name || '';
+          document.getElementById('activity-description').value = activity.description || '';
+          document.getElementById('activity-cost').value = activity.cost || '';
+          document.getElementById('activity-location').value = activity.location || '';
+          document.getElementById('start-date').value = activity.startDate || '';
+          document.getElementById('end-date').value = activity.endDate || '';
+          document.getElementById('start-time').value = activity.startTime || '';
+          document.getElementById('end-time').value = activity.endTime || '';
+          if (activity.imageUrl) {
+            imagePreview.src = activity.imageUrl;
+            imagePreview.style.display = 'block';
+          } else {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+          }
+          modalTitle.textContent = 'Edit Activity';
+          currentActivityId = activityId;
+          activityModal.show();
+        } catch (error) {
+          console.error('Error fetching activity:', error);
+          alert('Failed to load activity data.');
+        }
+      }
+
+      async function deleteActivity(activityId) {
+        if (confirm('Are you sure you want to delete this activity?')) {
+          try {
+            const interestedUsersSnapshot = await db.collection('programs').doc(programId).collection('activities').doc(activityId).collection('interestedUsers').get();
+            const batch = db.batch();
+            interestedUsersSnapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            await db.collection('programs').doc(programId).collection('activities').doc(activityId).delete();
+            await renderGroups();
+          } catch (error) {
+            console.error('Error deleting activity:', error);
+            alert('Failed to delete activity.');
+          }
+        }
+      }
+
+      async function editGroup(groupId) {
+        try {
+          const groupDoc = await db.collection('groups').doc(groupId).get();
+          if (!groupDoc.exists) {
+            alert('Group not found.');
+            return;
+          }
+          document.getElementById('group-name').value = groupDoc.data().name;
+          groupModalTitle.textContent = 'Edit Group';
+          currentGroupId = groupId;
+          groupModal.show();
+        } catch (error) {
+          console.error('Error fetching group:', error);
+          alert('Failed to load group data.');
+        }
+      }
+
+      async function deleteGroup(groupId) {
+        if (confirm('Are you sure you want to delete this group and all its activities?')) {
+          try {
+            const activitiesSnapshot = await db.collection('programs').doc(programId).collection('activities').where('groupId', '==', groupId).get();
+            const batch = db.batch();
+            for (const doc of activitiesSnapshot.docs) {
+              const interestedUsersSnapshot = await db.collection('programs').doc(programId).collection('activities').doc(doc.id).collection('interestedUsers').get();
+              interestedUsersSnapshot.forEach(userDoc => batch.delete(userDoc.ref));
+              batch.delete(doc.ref);
+            }
+            await batch.commit();
+            await db.collection('groups').doc(groupId).delete();
+            await renderGroups();
+          } catch (error) {
+            console.error('Error deleting group:', error);
+            alert('Failed to delete group.');
+          }
+        }
+      }
+
+      async function removeUserFromList(activityId, userName, listType) {
+        try {
+          const activityRef = db.collection('programs').doc(programId).collection('activities').doc(activityId);
+          if (listType === 'confirmed') {
+            await activityRef.update({
+              confirmedUsers: FieldValue.arrayRemove  (`/programs/TCNeeHc4qXeyJAsM2MqO/activities/${activityId}`).arrayRemove(userName)
+            });
+          } else if (listType === 'reserved') {
+            await activityRef.update({
+              reservedUsers: FieldValue.arrayRemove(userName)
+            });
+          }
+          await renderGroups();
+        } catch (error) {
+          console.error('Error removing user from list:', error);
+          alert('Failed to remove user from list.');
+        }
+      }
+
+      async function handleUserResponse(activityId, userName, listType) {
+        try {
+          const activityRef = db.collection('programs').doc(programId).collection('activities').doc(activityId);
+          if (listType === 'confirmed') {
+            await activityRef.update({
+              confirmedUsers: FieldValue.arrayUnion(userName),
+              reservedUsers: FieldValue.arrayRemove(userName)
+            });
+          } else if (listType === 'reserved') {
+            await activityRef.update({
+              reservedUsers: FieldValue.arrayUnion(userName),
+              confirmedUsers: FieldValue.arrayRemove(userName)
+            });
+          }
+          await renderGroups();
+        } catch (error) {
+          console.error('Error updating user lists:', error);
+          alert('Failed to update user lists.');
+        }
+      }
+
+      async function toggleSubmissions(activityId, isOpen) {
+        try {
+          await db.collection('programs').doc(programId).collection('activities').doc(activityId).update({
+            isSubmissionsOpen: isOpen
+          });
+          await renderGroups();
+        } catch (error) {
+          console.error('Error toggling submissions:', error);
+          alert('Failed to toggle submissions.');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
