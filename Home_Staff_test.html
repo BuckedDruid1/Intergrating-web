@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Home | Integrating Admin</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+  <style>
+    body { padding-top: 58px; background-color: #f8f9fa; }
+    .avatar-initials {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.8rem; color: white;
+      flex-shrink: 0;
+    }
+    .activity-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .activity-card:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15)!important; }
+    .status-badge { font-size: 0.75rem; padding: 0.35em 0.65em; }
+    .category-chip { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 1rem; }
+    .table-fixed-layout { table-layout: fixed; width: 100%; }
+    .table-fixed-layout th:nth-child(1) { width: 25%; }
+    .table-fixed-layout th:nth-child(2) { width: 15%; }
+    .table-fixed-layout th:nth-child(3) { width: 15%; }
+    .table-fixed-layout th:nth-child(4) { width: 10%; }
+    .table-fixed-layout th:nth-child(5) { width: 15%; }
+    .table-fixed-layout th:nth-child(6) { width: 20%; }
+    @media (max-width: 768px) { body { padding-top: 110px; } }
+  </style>
+</head>
+<body>
+
+<nav id="navMain" class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#">Integrating Admin</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Residents</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Staff</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Reports</a></li>
+      </ul>
+      <div class="d-flex align-items-center gap-3">
+        <form class="d-flex" role="search">
+          <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search Admin Portal">
+        </form>
+        <button class="btn btn-sm btn-outline-light position-relative" title="Notifications">
+          <i class="bi bi-bell-fill"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+        </button>
+        <div class="dropdown">
+          <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <span class="avatar-initials bg-info">JS</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="#">Preferences</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" onclick="firebase.auth().signOut()">Sign Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid py-4">
+  <header id="pageHeader" class="mb-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active">Staff</li>
+      </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h1 class="h2 mb-0">Staff Home</h1>
+      <div>
+        <button class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-calendar-plus me-1"></i> Create Activity</button>
+        <button class="btn btn-sm btn-success"><i class="bi bi-megaphone me-1"></i> New Announcement</button>
+      </div>
+    </div>
+    <small class="text-muted mt-2 d-block">Last data fetch: <span id="lastUpdated">Loading...</span></small>
+  </header>
+
+  <div class="row g-4">
+    <div id="overviewCards" class="col-lg-12">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-start border-4 border-info">
+            <div class="card-body">
+              <h5 class="card-title text-info mb-3"><i class="bi bi-calendar-event me-2"></i>Today’s Schedule</h5>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="me-auto">
+                    <div class="fw-bold">09:00 - Morning Walk</div>
+                    <small class="text-muted">Garden & Patios / Staff: AR, ST</small>
+                  </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="me-auto">
+                    <div class="fw-bold">11:00 - Visual Arts Test</div>
+                    <small class="text-muted">Art Studio / Staff: JP, KR</small>
+                  </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="me-auto">
+                    <div class="fw-bold">14:30 - Music Hour</div>
+                    <small class="text-muted">Common Room / Staff: MT</small>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-start border-4 border-warning">
+            <div class="card-body">
+              <h5 class="card-title text-warning mb-3"><i class="bi bi-check2-square me-2"></i>Pending Tasks</h5>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Activity Approvals <span class="badge bg-warning rounded-pill">5</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Resident Check-ins <span class="badge bg-warning rounded-pill">12</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Equipment Maintenance <span class="badge bg-warning rounded-pill">2</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm border-start border-4 border-danger">
+            <div class="card-body">
+              <h5 class="card-title text-danger mb-3"><i class="bi bi-bell me-2"></i>Notifications</h5>
+              <div class="alert alert-danger p-2 mb-2"><small>Capacity Alert: **Music Hour** is Full (15/15).</small></div>
+              <div class="alert alert-info p-2 mb-2"><small>New Request: **Alex R** requested to join **Visual arts test**.</small></div>
+              <div class="alert alert-warning p-2 mb-0"><small>Task Overdue: **Annual Staff Training**.</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12"><hr class="my-4"></div>
+
+    <div id="activitiesSection" class="col-12">
+      <h2 class="h3 mb-3">Activities Out Now</h2>
+
+      <div id="activitiesToolbar" class="d-flex flex-wrap gap-3 mb-3 p-3 bg-white border rounded shadow-sm align-items-center">
+        <input type="search" id="activitySearch" class="form-control w-auto flex-grow-1" placeholder="Search activities...">
+        <select id="filterCategory" class="form-select w-auto">
+          <option value="">All Categories</option>
+          <option value="Arts">Arts</option>
+          <option value="Physical">Physical</option>
+          <option value="Social">Social</option>
+          <option value="General">General</option>
+        </select>
+        <select id="filterStatus" class="form-select w-auto">
+          <option value="">All Statuses</option>
+          <option value="Open">Open</option>
+          <option value="Filling Fast">Filling Fast</option>
+          <option value="Full">Full</option>
+          <option value="Closed">Closed</option>
+        </select>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-secondary active" id="viewCardsBtn"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+          <button type="button" class="btn btn-outline-secondary" id="viewTableBtn"><i class="bi bi-list-task"></i></button>
+        </div>
+      </div>
+
+      <div id="activitiesContainer">
+        <div id="loadingState" class="text-center p-5">
+          <div class="spinner-border text-primary"><span class="visually-hidden">Loading...</span></div>
+          <p class="mt-2 text-muted">Loading activities...</p>
+        </div>
+        <div id="activitiesGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+        <div id="activitiesTable" style="display:none;">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover table-fixed-layout shadow-sm bg-white rounded">
+              <thead class="table-light">
+                <tr>
+                  <th>Activity</th><th>Time</th><th>Location</th><th>Capacity</th><th>Requests/Approved</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="activitiesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12"><hr class="my-4"><h2 class="h3 mb-3">Today's Focus</h2></div>
+    <div class="col-lg-6">
+      <div id="requestsPanel" class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-person-check me-2"></i>Requests & Approvals (Demo)</h5>
+          <ul class="list-group list-group-flush mt-3">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              **Alex R** for **Visual arts test**
+              <button class="btn btn-sm btn-success">Approve</button>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              **Mia T** for **Morning Walk**
+              <button class="btn btn-sm btn-success">Approve</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div id="staffOnDutyPanel" class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-people-fill me-2"></i>Staff On Duty (Demo)</h5>
+          <div id="staffOnDutyGrid" class="d-flex flex-wrap gap-3 mt-3">
+            <div class="text-center"><span class="avatar-initials bg-info d-block mx-auto mb-1">AR</span><small class="d-block text-muted">Alex R. (RN)</small></div>
+            <div class="text-center"><span class="avatar-initials bg-success d-block mx-auto mb-1">ST</span><small class="d-block text-muted">Sam T. (HCA)</small></div>
+            <div class="text-center"><span class="avatar-initials bg-primary d-block mx-auto mb-1">JP</span><small class="d-block text-muted">Jo P. (Admin)</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white-50 py-3 mt-5">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap gap-2">
+      <small>© 2025 Integrating Admin. Version 1.0.0</small>
+      <ul class="list-inline mb-0">
+        <li class="list-inline-item"><a href="#" class="text-white-50 text-decoration-none">Help</a></li>
+        <li class="list-inline-item"><span class="mx-1">|</span></li>
+        <li class="list-inline-item"><a href="#" class="text-white-50 text-decoration-none">Terms</a></li>
+        <li class="list-inline-item"><a href="#" class="text-white-50 text-decoration-none">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCn2rkxqHwd0L3Q669BEizX7Ezyz2-wZmI",
+    authDomain: "intergrating-3b2e9.firebaseapp.com",
+    databaseURL: "https://intergrating-3b2e9-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "intergrating-3b2e9",
+    storageBucket: "intergrating-3b2e9.appspot.com",
+    messagingSenderId: "347420906839",
+    appId: "1:347420906839:web:cf1d9ea660df7b235e1a12",
+    measurementId: "G-WC3EB3EPZT"
+  };
+
+  let db = null;
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.firebase === 'undefined' || !window.firebase.apps) {
+      console.error("Firebase SDK not loaded");
+      loadActivities();
+      return;
+    }
+
+    if (window.firebase.apps.length === 0) {
+      window.firebase.initializeApp(firebaseConfig);
+    }
+
+    db = window.firebase.firestore();
+
+    $('#activitySearch').addEventListener('input', filterActivities);
+    $('#filterCategory').addEventListener('change', filterActivities);
+    $('#filterStatus').addEventListener('change', filterActivities);
+
+    $('#viewCardsBtn').addEventListener('click', () => {
+      $('#viewCardsBtn').classList.add('active');
+      $('#viewTableBtn').classList.remove('active');
+      $('#activitiesGrid').style.display = 'flex';
+      $('#activitiesTable').style.display = 'none';
+    });
+
+    $('#viewTableBtn').addEventListener('click', () => {
+      $('#viewTableBtn').classList.add('active');
+      $('#viewCardsBtn').classList.remove('active');
+      $('#activitiesGrid').style.display = 'none';
+      $('#activitiesTable').style.display = 'block';
+    });
+
+    loadActivities();
+  });
+
+  function parseDateTime(dateStr, timeStr) {
+    return new Date(`${dateStr}T${timeStr}:00`);
+  }
+
+  function formatDateTime(start, end) {
+    const startObj = parseDateTime(start.date, start.time);
+    const endObj = parseDateTime(end.date, end.time);
+    const timeOpts = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const dateOpts = { month: 'short', day: 'numeric' };
+    if (start.date !== end.date) {
+      const fullOpts = { month: 'short', day: 'numeric', year: 'numeric', ...timeOpts };
+      return `${startObj.toLocaleString(undefined, fullOpts)} - ${endObj.toLocaleString(undefined, fullOpts)}`;
+    }
+    return `${startObj.toLocaleDateString(undefined, dateOpts)}, ${startObj.toLocaleTimeString(undefined, timeOpts)} - ${endObj.toLocaleTimeString(undefined, timeOpts)}`;
+  }
+
+  function computeStatus({ isSubmissionsOpen, used, total }) {
+    if (!isSubmissionsOpen) return 'Closed';
+    if (used >= total) return 'Full';
+    if (used / total > 0.75) return 'Filling Fast';
+    return 'Open';
+  }
+
+  function deriveCategory(name) {
+    const lower = name.toLowerCase();
+    if (lower.includes('art') || lower.includes('craft')) return { name: 'Arts', color: 'info' };
+    if (lower.includes('walk') || lower.includes('stretch')) return { name: 'Physical', color: 'success' };
+    if (lower.includes('music') || lower.includes('social')) return { name: 'Social', color: 'primary' };
+    return { name: 'General', color: 'secondary' };
+  }
+
+  async function fetchAttendees(activityId) {
+    if (!db) return [];
+    try {
+      const snap = await db.collection('activities').doc(activityId).collection('attendees').limit(20).get();
+      const list = [];
+      snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+      return list;
+    } catch (e) {
+      console.error('fetchAttendees error', e);
+      return [];
+    }
+  }
+
+  function activityToViewModel(raw, attendees = []) {
+    const data = raw;
+    const startDateTime = parseDateTime(data.startDate, data.startTime);
+    const endDateTime = parseDateTime(data.endDate, data.endTime);
+    const capacity = data.capacity || { used: 0, total: 15 };
+    const approved = attendees.filter(a => a.status === 'approved').length;
+    const waitlisted = attendees.filter(a => a.status === 'waitlisted').length;
+    capacity.used = approved + waitlisted;
+    const requested = attendees.filter(a => a.status === 'requested').length;
+
+    return {
+      id: raw.id,
+      name: data.name || 'Unnamed Activity',
+      description: data.description || 'No description provided',
+      location: data.location || 'Not specified',
+      cost: data.cost ?? 0,
+      timeRangeFormatted: formatDateTime(
+        { date: data.startDate, time: data.startTime },
+        { date: data.endDate, time: data.endTime }
+      ),
+      startDateTime,
+      endDateTime,
+      status: computeStatus({
+        isSubmissionsOpen: data.isSubmissionsOpen ?? true,
+        used: capacity.used,
+        total: capacity.total
+      }),
+      category: deriveCategory(data.name || ''),
+      capacity,
+      attendees,
+      attendeeCounts: { requested, approved, waitlisted }
+    };
+  }
+
+  function isActivityOutNow(activity) {
+    const now = Date.now();
+    const endCutoff = activity.endDateTime.getTime() + 2 * 60 * 60 * 1000;
+    return endCutoff >= now;
+  }
+
+  function renderAttendees(attendees) {
+    if (!attendees.length) return '<span class="text-muted small fst-italic">No attendees yet.</span>';
+    const visible = attendees.slice(0, 4);
+    const overflow = attendees.length - visible.length;
+    let html = visible.map(a => {
+      const initials = (a.displayName || '??').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+      const color = ['bg-primary','bg-success','bg-info','bg-warning','bg-danger','bg-secondary'][initials.charCodeAt(0) % 6];
+      const statusBadge = a.status === 'approved' ? 'bg-success' : a.status === 'waitlisted' ? 'bg-warning' : 'bg-primary';
+      return `<div class="d-flex align-items-center me-2" data-bs-toggle="tooltip" title="${a.displayName || 'User'} (${a.status})">
+        <span class="avatar-initials ${color} me-1">${initials}</span>
+        <span class="badge ${statusBadge} status-badge">${a.status[0].toUpperCase()}</span>
+      </div>`;
+    }).join('');
+    if (overflow) html += `<span class="badge rounded-pill bg-light text-dark status-badge" data-bs-toggle="tooltip" title="${overflow} more">+${overflow}</span>`;
+    return `<div class="d-flex flex-wrap align-items-center">${html}</div>`;
+  }
+
+    function renderActivitiesCards(activities) {
+      // 1. Define inline styles for modern card aesthetics and transitions
+      const CARD_STYLE = `
+          .activity-card {
+              transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+              border-radius: 12px;
+              overflow: hidden;
+              border: none;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+              min-width: 320px;              /* prevents overly skinny cards */
+          }
+          .activity-card:hover {
+              transform: translateY(-3px);
+              box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+          }
+          .card-header {
+              cursor: pointer;
+              user-select: none;
+              padding: 1.25rem 1.5rem;      /* slightly larger touch target */
+          }
+          .card-header[aria-expanded="true"] .bi-chevron-down {
+              transform: rotate(180deg);
+          }
+          .card-header .bi-chevron-down {
+              transition: transform 0.35s ease;
+          }
+          @media (max-width: 576px) {
+              .card-header {
+                  padding: 1rem 1.25rem;
+              }
+          }
+      `;
+
+      // Inject styles (only once)
+      if (!document.getElementById('activity-card-styles')) {
+          const styleEl = document.createElement('style');
+          styleEl.id = 'activity-card-styles';
+          styleEl.textContent = CARD_STYLE;
+          document.head.appendChild(styleEl);
+      }
+
+      // XSS-safe text escaping
+      const sanitizeText = (text) => {
+          const div = document.createElement('div');
+          div.textContent = text ?? '';
+          return div.innerHTML;
+      };
+
+      // Currency formatting (GBP, locale-aware)
+      const locale = navigator.language || 'en-GB';
+      const currencyFormatter = new Intl.NumberFormat(locale, {
+          style: 'currency',
+          currency: 'GBP',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+      });
+
+      const grid = document.getElementById('activitiesGrid');
+      if (!grid) return;
+
+      // Status → Bootstrap color mapping
+      const BS5_STATUS_MAP = {
+          open:     'success',
+          filling:  'warning',
+          full:     'danger',
+          closed:   'secondary'
+      };
+
+      // Empty state
+      if (!activities || activities.length === 0) {
+          grid.innerHTML = `
+              <div class="col-12 text-center py-5">
+                  <div class="mx-auto" style="max-width: 400px;">
+                      <i class="bi bi-calendar-x-fill text-secondary display-4 mb-4" aria-hidden="true"></i>
+                      <h3 class="h5 fw-bold text-dark mb-2">No Activities Found</h3>
+                      <p class="text-secondary mb-3">
+                          We couldn't find any activities matching your current criteria.
+                      </p>
+                      <p class="small text-muted">
+                          Please adjust your filters or try browsing a different category.
+                      </p>
+                  </div>
+              </div>
+          `;
+          return;
+      }
+
+      // Skeleton loading (preserved UX)
+      if (grid.dataset.loading === 'true') {
+          grid.innerHTML = Array(3).fill(0).map(() => `
+              <div class="col">
+                  <div class="card h-100 shadow-sm border-0 activity-card placeholder-glow">
+                      <div class="card-body">
+                          <h5 class="card-title">
+                              <span class="placeholder col-8 rounded"></span>
+                          </h5>
+                          <p class="card-text">
+                              <span class="placeholder col-6 rounded d-block mt-2"></span>
+                              <span class="placeholder col-10 rounded d-block mt-2"></span>
+                              <span class="placeholder col-7 rounded d-block mt-2"></span>
+                          </p>
+                          <div class="d-flex gap-2 border-top pt-3 mt-3">
+                              <span class="btn btn-primary disabled placeholder col-5 rounded"></span>
+                              <span class="btn btn-outline-secondary disabled placeholder col-5 rounded"></span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          `).join('');
+          return;
+      }
+
+      delete grid.dataset.loading;
+
+      const cardHtml = activities.map(a => {
+          // Stable collapse ID (prefer groupId if present)
+          const rawId = a.groupId || `activity-${crypto.randomUUID ? crypto.randomUUID().slice(0,8) : Date.now().toString(36)}`;
+          const id = sanitizeText(rawId);
+          const collapseId = `collapse-${id}`;
+          const headerId = `heading-${id}`;
+
+          const name               = sanitizeText(a.name              || 'Untitled Activity');
+          const description        = sanitizeText(a.description       || 'No description available.');
+          const location           = sanitizeText(a.location          || 'TBD Location');
+          const cost               = (typeof a.cost === 'number' && a.cost > 0) ? currencyFormatter.format(a.cost) : 'Free';
+          const categoryName       = sanitizeText(a.category?.name    || 'General');
+          const timeRangeFormatted = sanitizeText(a.timeRangeFormatted || 'Date/Time Unavailable');
+          const startDateTimeISO   = sanitizeText(a.startDateTime     || '');
+
+          // Capacity
+          const used = a.capacity?.used || a.attendeeCounts?.approved || 0;
+          const total = a.capacity?.total || 0;
+          const hasCapacity = total > 0;
+          const capacityPct = hasCapacity ? Math.round((used / total) * 100) : 0;
+          const spotsRemaining = hasCapacity ? total - used : null;
+
+          // Status logic
+          let statusText = 'Closed';
+          let statusColor = BS5_STATUS_MAP.closed;
+          let statusTooltip = 'Submissions are currently closed for this activity.';
+          let disabled = true;
+          let progressBg = 'bg-secondary';
+
+          const isSubmissionsOpen = a.isSubmissionsOpen === true;
+
+          if (isSubmissionsOpen) {
+              if (hasCapacity && used >= total) {
+                  statusText = 'Full Capacity';
+                  statusColor = BS5_STATUS_MAP.full;
+                  statusTooltip = 'The activity is full. Waitlist or alternative actions may be available.';
+                  progressBg = 'bg-danger';
+              } else if (hasCapacity && capacityPct >= 75) {
+                  statusText = 'Filling Fast';
+                  statusColor = BS5_STATUS_MAP.filling;
+                  statusTooltip = `Only ${spotsRemaining} spot(s) remaining! Apply now to secure your spot.`;
+                  progressBg = 'bg-warning';
+                  disabled = false;
+              } else {
+                  statusText = 'Open';
+                  statusColor = BS5_STATUS_MAP.open;
+                  statusTooltip = 'Submissions are open and accepting applicants.';
+                  progressBg = 'bg-success';
+                  disabled = false;
+              }
+          }
+
+          if (!isSubmissionsOpen && hasCapacity && used >= total) {
+              statusText = 'Full Capacity';
+              statusColor = BS5_STATUS_MAP.full;
+              statusTooltip = 'The activity is full and closed for submissions.';
+              disabled = true;
+              progressBg = 'bg-danger';
+          }
+
+          const disabledAttr = disabled ? 'disabled aria-disabled="true"' : '';
+
+          return `
+              <div class="col">
+                  <div class="card h-100 bg-white activity-card shadow-sm">
+                      <div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center"
+                           id="${headerId}"
+                           data-bs-toggle="collapse"
+                           data-bs-target="#${collapseId}"
+                           aria-expanded="false"
+                           aria-controls="${collapseId}"
+                           role="button">
+                          <div class="d-flex align-items-center flex-wrap gap-3">
+                              <h5 class="mb-0 fw-bold text-dark">${name}</h5>
+                              <span class="badge bg-light text-secondary border border-secondary-subtle px-2 py-1">
+                                  ${categoryName}
+                              </span>
+                          </div>
+                          <i class="bi bi-chevron-down fs-5 text-muted ms-3"></i>
+                      </div>
+
+                      <div id="${collapseId}" class="collapse" aria-labelledby="${headerId}">
+                          <div class="card-body d-flex flex-column gap-4">
+
+                              <!-- Status + Cost -->
+                              <div class="d-flex align-items-center flex-wrap gap-3 pb-3 border-bottom">
+                                  <span class="badge bg-${statusColor} px-3 py-2 fw-semibold fs-6" title="${statusTooltip}">
+                                      ${statusText}
+                                  </span>
+                                  <span class="fw-bold text-primary fs-5">${cost}</span>
+                              </div>
+
+                              <!-- Time & Location -->
+                              <div class="d-flex flex-column gap-3">
+                                  <div class="d-flex align-items-center text-muted">
+                                      <i class="bi bi-calendar-event-fill me-2 fs-5 opacity-75" aria-hidden="true"></i>
+                                      <time datetime="${startDateTimeISO}" class="fw-medium">
+                                          ${timeRangeFormatted}
+                                      </time>
+                                  </div>
+                                  <div class="d-flex align-items-center text-muted">
+                                      <i class="bi bi-geo-alt-fill me-2 fs-5 opacity-75" aria-hidden="true"></i>
+                                      <span class="fw-medium">${location}</span>
+                                  </div>
+                              </div>
+
+                              <!-- Description -->
+                              <div>
+                                  <h6 class="fw-semibold mb-2">Description</h6>
+                                  <p class="mb-0">${description}</p>
+                              </div>
+
+                              <!-- Capacity (if present) -->
+                              ${hasCapacity ? `
+                                  <div class="mt-auto pt-4 border-top">
+                                      <div class="d-flex justify-content-between align-items-center mb-2 small fw-medium">
+                                          <span>Capacity</span>
+                                          <span>${used} / ${total} (${spotsRemaining} left)</span>
+                                      </div>
+                                      <div class="progress rounded-pill" style="height: 10px;">
+                                          <div class="progress-bar ${progressBg}" role="progressbar"
+                                               style="width: ${capacityPct}%"
+                                               aria-valuenow="${used}" aria-valuemin="0" aria-valuemax="${total}"
+                                               title="${capacityPct}% occupied"></div>
+                                      </div>
+                                  </div>
+                              ` : ''}
+
+                              <!-- Action buttons -->
+                              <div class="d-flex flex-column flex-sm-row gap-2 mt-3 pt-3 border-top">
+                                  <button class="btn btn-success flex-fill fw-bold py-2"
+                                          data-action="approve"
+                                          data-activity-id="${id}"
+                                          ${disabledAttr}>
+                                      Approve
+                                  </button>
+                                  <button class="btn btn-outline-danger flex-fill fw-bold py-2"
+                                          data-action="decline"
+                                          data-activity-id="${id}"
+                                          ${disabledAttr}>
+                                      Decline
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          `;
+      }).join('');
+
+      // Use row-cols-* for automatic responsive columns
+      grid.innerHTML = `
+          <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+              ${cardHtml}
+          </div>
+      `;
+
+      // Event delegation for Approve / Decline (unchanged)
+      grid.addEventListener('click', function(event) {
+          const target = event.target.closest('[data-action]');
+          if (!target) return;
+
+          const action = target.dataset.action;
+          const activityId = target.dataset.activityId;
+
+          if (action === 'approve' || action === 'decline') {
+              if (target.disabled || target.getAttribute('aria-disabled') === 'true') {
+                  event.preventDefault();
+                  return;
+              }
+
+              grid.dispatchEvent(new CustomEvent('activityAction', {
+                  detail: { action, activityId },
+                  bubbles: true
+              }));
+          }
+      });
+  }
+
+    function renderActivitiesTable(activities) {
+        const tbody = document.getElementById('activitiesTableBody'); // CHANGED
+
+        if (!activities.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No activities found.</td></tr>'; // CHANGED
+            return;
+        }
+
+        tbody.innerHTML = activities.map(a => {
+            const statusClass = a.status === 'Open' ? 'success' :
+                               a.status === 'Filling Fast' ? 'warning' :
+                               a.status === 'Full' ? 'danger' : 'secondary';
+
+            const isDisabled = (a.status === 'Full' || a.status === 'Closed');
+            const disabledAttr = isDisabled ? 'disabled aria-disabled="true"' : ''; // CHANGED
+
+            // Safe property access with fallbacks
+            const categoryName  = a.category?.name  || 'General';                    // CHANGED
+            const categoryColor = a.category?.color || 'secondary';                  // CHANGED
+            const used          = a.capacity?.used  ?? 0;                            // CHANGED
+            const total         = a.capacity?.total ?? 0;                            // CHANGED
+            const requested     = a.attendeeCounts?.requested  ?? 0;                 // CHANGED
+            const approved      = a.attendeeCounts?.approved   ?? 0;                 // CHANGED
+            const waitlisted    = a.attendeeCounts?.waitlisted ?? 0;                 // CHANGED
+
+            return `
+                <tr data-activity-id="${a.id}" data-status="${a.status}" data-category="${categoryName}">
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold">${a.name}</span>
+                            <span class="category-chip badge bg-${categoryColor}-subtle text-${categoryColor} align-self-start">
+                                ${categoryName}
+                            </span>
+                        </div>
+                    </td>
+                    <td>${a.timeRangeFormatted || ''}</td>
+                    <td>${a.location || ''}</td>
+                    <td>
+                        <span class="badge bg-light text-dark" title="${used} of ${total} spots used">
+                            ${used}/${total}
+                        </span>
+                        <span class="badge bg-${statusClass} status-badge ms-1" title="${a.status} status">
+                            ${a.status}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary me-1" title="${requested} requested">
+                            ${requested} R
+                        </span>
+                        <span class="badge bg-success me-1" title="${approved} approved">
+                            ${approved} A
+                        </span>
+                        <span class="badge bg-warning" title="${waitlisted} waitlisted">
+                            ${waitlisted} W
+                        </span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-success me-1"
+                                data-action="approve" data-activity-id="${a.id}"
+                                ${disabledAttr}> // CHANGED
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                data-action="decline" data-activity-id="${a.id}"
+                                ${disabledAttr}> // CHANGED
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </td>
+                </tr>`;
+        }).join('');
+    }
+
+  function renderActivities(rawActivities) {
+    const processed = rawActivities.map(a => activityToViewModel(a, a.attendees || []));
+    renderActivitiesCards(processed);
+    renderActivitiesTable(processed);
+    filterActivities();
+    $$('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+    $('#lastUpdated').textContent = new Date().toLocaleString();
+    $('#loadingState').style.display = 'none';
+  }
+
+    async function loadActivities() {
+      $('#loadingState').style.display = 'block';
+      let activities = [];
+      let programId = null; // Initialize programId dynamically
+
+      try {
+        if (!db) throw new Error("Firestore not initialized");
+
+        // --- 1. DYNAMICALLY FETCH AND SELECT PROGRAM ID ---
+        console.log("Fetching available Program UIDs...");
+
+        const programSnapshot = await db.collection('programs').get();
+
+        console.log("Program Snapshot Size:", programSnapshot.size); // Should be 1
+        console.log("Program Snapshot Docs:", programSnapshot.docs.length); // Should be 1
+
+        if (programSnapshot.empty) {
+          // Handle the scenario where no programs exist
+          throw new Error("No programs found in Firestore. Cannot load activities.");
+        }
+
+        // Use the ID of the first program found as the active programId
+        programId = programSnapshot.docs[0].id;
+        console.log(`Defaulting to programId: ${programId}`);
+
+        // --- 2. FETCH ACTIVITIES ---
+
+        // Fetch all activities from root collection
+        const snapshot = await db.collection('activities').get();
+        if (snapshot.empty) {
+          console.warn("No activities found");
+          renderActivities([]);
+          return;
+        }
+
+        const activityDocs = snapshot.docs;
+
+        // --- 3. PROCESS ACTIVITIES AND COUNT USERS ---
+
+        // Process each activity + fetch interested users count in parallel
+        const activityPromises = activityDocs.map(async (doc) => {
+          const data = doc.data();
+
+          // Skip malformed activities (same as before)
+          if (!data.name || !data.startDate || !data.startTime || !data.endDate || !data.endTime || data.location === undefined) {
+            return null;
+          }
+
+          let used = 0;
+          try {
+            // Efficient count of interested users, now using the dynamically selected programId
+            const interestedSnap = await db
+              .collection('programs')
+              .doc(programId) // *** DYNAMICALLY SELECTED programId USED HERE ***
+              .collection('activities')
+              .doc(doc.id)
+              .collection('confirmedUsers')
+              .get();
+
+            used = interestedSnap.size;
+          } catch (err) {
+            // This likely means the activity doesn't exist under the selected programId,
+            // which is a common pattern for "interested" user counts.
+            console.warn(`Failed to count interested users for activity ${doc.id} in program ${programId}:`, err);
+            used = 0;
+          }
+
+          const total = data.capacity?.total || 15;
+
+          return {
+            id: doc.id,
+            name: data.name,
+            description: data.description || "No description provided",
+            startDate: data.startDate,
+            endDate: data.endDate,
+            startTime: data.startTime,
+            endTime: data.endTime,
+            location: data.location,
+            cost: data.cost ?? 0,
+            isSubmissionsOpen: data.isSubmissionsOpen ?? true,
+            capacity: {
+              used: used,
+              total: total
+            },
+          };
+        });
+
+        // Resolve all in parallel
+        const resolvedActivities = await Promise.all(activityPromises);
+        activities = resolvedActivities.filter(act => act !== null);
+
+      } catch (err) {
+        console.error("loadActivities error:", err);
+        // ... existing error display logic ...
+        const container = document.querySelector('.container-fluid');
+        if (container) {
+          container.insertAdjacentHTML('afterbegin', `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Data Error:</strong> Failed to load activities – ${err.message}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`);
+        }
+        activities = [];
+      } finally {
+        $('#loadingState').style.display = 'none';
+      }
+
+      renderActivities(activities);
+    }
+
+  function filterActivities() {
+    const term = $('#activitySearch').value.toLowerCase().trim();
+    const cat = $('#filterCategory').value;
+    const stat = $('#filterStatus').value;
+
+    $$('#activitiesGrid .activity-card, #activitiesTableBody tr').forEach(el => {
+      const name = el.querySelector('h5, .fw-bold')?.textContent || '';
+      const status = el.dataset.status || '';
+      const category = el.dataset.category || '';
+      const matchSearch = name.toLowerCase().includes(term);
+      const matchCat = !cat || category === cat;
+      const matchStat = !stat || status === stat;
+      el.style.display = matchSearch && matchCat && matchStat ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
